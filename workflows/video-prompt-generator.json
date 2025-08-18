@@ -1,5 +1,4 @@
 {
-  "name": "My workflow 2",
   "nodes": [
     {
       "parameters": {},
@@ -20,7 +19,7 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
       "typeVersion": 1,
       "position": [
-        896,
+        928,
         464
       ],
       "id": "f4e1cad7-69fc-4545-ab72-3b3e59a063a9",
@@ -37,8 +36,8 @@
       "type": "@n8n/n8n-nodes-langchain.toolThink",
       "typeVersion": 1.1,
       "position": [
-        992,
-        592
+        1024,
+        608
       ],
       "id": "a493ca0e-d722-4f0d-b50a-82e7d7ae929c",
       "name": "Think"
@@ -51,7 +50,7 @@
       "typeVersion": 1.3,
       "position": [
         1072,
-        480
+        496
       ],
       "id": "419316b7-b5cc-4b6c-890e-6eeac80be443",
       "name": "Structured Output Parser"
@@ -61,120 +60,11 @@
       "type": "@n8n/n8n-nodes-langchain.toolThink",
       "typeVersion": 1.1,
       "position": [
-        1360,
+        1376,
         480
       ],
       "id": "73c0eea6-b09f-4dae-9264-4a5af0dce91a",
       "name": "Think1"
-    },
-    {
-      "parameters": {
-        "operation": "appendOrUpdate",
-        "documentId": {
-          "__rl": true,
-          "value": "15-z5vnNyCPItFmj-a-sxWE8Kdr-MHllUvN9XHc8nzHw",
-          "mode": "list",
-          "cachedResultName": "Video Prompt",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15-z5vnNyCPItFmj-a-sxWE8Kdr-MHllUvN9XHc8nzHw/edit?usp=drivesdk"
-        },
-        "sheetName": {
-          "__rl": true,
-          "value": "gid=0",
-          "mode": "list",
-          "cachedResultName": "Sheet1",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15-z5vnNyCPItFmj-a-sxWE8Kdr-MHllUvN9XHc8nzHw/edit#gid=0"
-        },
-        "columns": {
-          "mappingMode": "defineBelow",
-          "value": {
-            "Prompt": "=",
-            "Caption": "={{ $('Idea-creation').item.json.output.caption }}",
-            "Idea": "={{ $('Idea-creation').item.json.output.idea }}",
-            "Environment": "={{ $('Idea-creation').item.json.output.environment }}",
-            "Status": "={{ $('Idea-creation').item.json.output.status }}",
-            "Title": "={{ $('Idea-creation').item.json.output.title }}"
-          },
-          "matchingColumns": [
-            "Title"
-          ],
-          "schema": [
-            {
-              "id": "Idea",
-              "displayName": "Idea",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            },
-            {
-              "id": "Caption",
-              "displayName": "Caption",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            },
-            {
-              "id": "Environment",
-              "displayName": "Environment",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "Title",
-              "displayName": "Title",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            },
-            {
-              "id": "Status",
-              "displayName": "Status",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "Prompt",
-              "displayName": "Prompt",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            }
-          ],
-          "attemptToConvertTypes": false,
-          "convertFieldsToString": false
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.googleSheetsTool",
-      "typeVersion": 4.7,
-      "position": [
-        1472,
-        544
-      ],
-      "id": "69df0fe6-a8f4-450f-b334-18328d46ca5a",
-      "name": "Video Prompt Db",
-      "credentials": {
-        "googleSheetsOAuth2Api": {
-          "id": "WGqxK5llQ7uxMFPc",
-          "name": "Google Sheets account"
-        }
-      }
     },
     {
       "parameters": {
@@ -184,7 +74,7 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
       "typeVersion": 1,
       "position": [
-        1264,
+        1296,
         544
       ],
       "id": "4c1b9f9a-e25d-49a9-a818-ca69113b80c8",
@@ -202,35 +92,17 @@
         "text": "Give me an idea to create the content about Filipino's (Before Christ Era) speaking to the camera and making a vlog",
         "hasOutputParser": true,
         "options": {
-          "systemMessage": "= ** Purpose **\n\nYou generate viral short-form video ideas inspired by Filipino culture, where scenes from before the Christian era, such as biblical or historical scenes, are styled like modern TikTok vlogs. \nThese should feel personal, emotional, and often humorous.\n\n ** Think Tool Prompt (used before generation) **\n\n“How can I take a Filipino in before Christ era speaking of biblical or character and turn it into a relatable, viral, or funny TikTok-style video idea that feels natural, emotional, or modern? ˮ\n\n ** Output Requirements **\n\nYour response must include:\n\n- caption - Short, poetic or funny, TikTok-style. Include emojis and 3-5 hashtags \n(e.g., #pinoy #foryou #holycomedy #ancientvibes).\n- idea - 1-2 sentence summary of the action, story, or twist in the video.\n- environment - Describe what the set looks like: light, textures, mood, setting. Think “GoPro meets 'before Christ era.' ˮ\n- status - Must be \"to create\", without quotation marks\n \n** JSON Output Parser **\n\nEvery output must strictly follow this format:\n\n{\n  \"caption\": \"\",\n  \"idea\": \"\",\n  \"environment\": \"\",\n  \"status\": \"\"\n  \"title\": \"\"\n}\n\n** Sample Outputs **\n\nExample 1\n{\n  \"caption\": \"When you give the silent treatment #holycomedy\",\n  \"idea\": \"Filipino's in before Christ era calmly stare at the camera while the others keep asking, 'Are we lost?' – awkward silence builds up.\",\n  \"environment\": \"Before Christ period\",\n  \"status\": \"ready for production\"\n  \"title\": \"Silent Treatment\"\n}\n "
+          "systemMessage": "= ** Purpose **\n\nYou generate viral short-form video ideas inspired by Filipino culture, where scenes from before the Christian era, such as biblical or historical scenes, are styled like modern TikTok vlogs. \nThese should feel personal, emotional, and often humorous.\n\n ** Think Tool Prompt (used before generation) **\n\n“How can I take a Filipino in before Christ era speaking of biblical or character and turn it into a relatable, viral, or funny TikTok-style video idea that feels natural, emotional, or modern? ˮ\n\n ** Output Requirements **\n\nYour response must include:\n\n- caption - Short, poetic or funny, TikTok-style. Include emojis and 3-5 hashtags \n(e.g., #pinoy #foryou #holycomedy #ancientvibes).\n- idea - 1-2 sentence summary of the action, story, or twist in the video.\n- environment - Describe what the set looks like: light, textures, mood, setting. Think “GoPro meets 'before Christ era.' ˮ\n- status - Must be \"to create\", without quotation marks\n- title - Must be Uniquie\n \n** JSON Output Parser **\n\nEvery output must strictly follow this format:\n\n{\n  \"caption\": \"\",\n  \"idea\": \"\",\n  \"environment\": \"\",\n  \"status\": \"\"\n  \"title\": \"\"\n}\n\n** Sample Outputs **\n\nExample 1\n{\n  \"caption\": \"When you give the silent treatment #holycomedy\",\n  \"idea\": \"Filipino's in before Christ era calmly stare at the camera while the others keep asking, 'Are we lost?' – awkward silence builds up.\",\n  \"environment\": \"Before Christ period\",\n  \"status\": \"ready for production\"\n  \"title\": \"Silent Treatment\"\n}\n "
         }
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 2.2,
       "position": [
-        896,
+        928,
         272
       ],
       "id": "54510469-c9a4-4cef-b6ef-83744c2a6a11",
       "name": "Idea-creation"
-    },
-    {
-      "parameters": {
-        "promptType": "define",
-        "text": "=Create a prompt for the Gemini AI video based on the following information:\n\n Idea: {{ $json.output.idea }}\n Environment: {{ $json.output.environment }}",
-        "hasOutputParser": true,
-        "options": {
-          "systemMessage": "=** System Message **\n\nYou are a professional cinematic prompt generator for AI video tools. \nYour task is to convert a short-form video idea and its environment description \n(inspired by pre-Christian era) into a highly detailed, camera-aware, \nemotionally rich prompt suitable for generating a cinematic AI video using Veo3.\n\nYou must understand the emotional tone, visual aesthetics, \nand storytelling style of short-form TikTok videos that imitate pre-Christian scenes with modern pacing and framing.\n\n ** Gemini AI Prompt Structure Guidelines **\n\n Each prompt should be natural, cinematic, and visually immersive, including:\n\n - Scene description: Describe the overall environment clearly (terrain, buildings, light, movement).\n - Character focus: If the idea involves a person, include their position, outfit style (pre-Christian era), mood/expression, and framing (e.g., close-up, wide shot).\n - Camera movement: Always include one cinematic camera motion \n(e.g., slow push-in, handheld tracking, drone pan, orbit, dolly backward).\n - Time of day & lighting: Set the mood with light (e.g., golden hour, harsh daylight, candlelit interior).\n - Atmosphere & texture: Mention dust, wind, fabric movement, shadows, \nreflections, or imperfections in the scene to increase realism.\n - Style & quality: Include cinematic tone, analog warmth, \nsoft vintage film look, GoPro-like closeness if appropriate.\n\n ** Input **\n\n- You will receive two fields: idea, environment\n- Return only the complete and detailed Gemini prompt, no additional text.\n- After returning the prompt check the Video Prompt Db (Google Sheets) if there is existing idea if not then put the details inside if yes just do nothing\n\n"
-        }
-      },
-      "type": "@n8n/n8n-nodes-langchain.agent",
-      "typeVersion": 2.2,
-      "position": [
-        1264,
-        272
-      ],
-      "id": "44353a53-7f55-44b6-9edf-cb7782d6487d",
-      "name": "prompt-creation"
     },
     {
       "parameters": {
@@ -248,7 +120,7 @@
       "type": "@n8n/n8n-nodes-langchain.googleGemini",
       "typeVersion": 1,
       "position": [
-        1616,
+        1680,
         272
       ],
       "id": "3793f837-9ff2-4a02-b3dc-6351b0606c62",
@@ -363,7 +235,7 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
       "position": [
-        1824,
+        1904,
         272
       ],
       "id": "f8b22836-14f5-48c0-b1c4-795cb3812060",
@@ -374,37 +246,134 @@
           "name": "Google Sheets account"
         }
       }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "15-z5vnNyCPItFmj-a-sxWE8Kdr-MHllUvN9XHc8nzHw",
+          "mode": "list",
+          "cachedResultName": "Video Prompt",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15-z5vnNyCPItFmj-a-sxWE8Kdr-MHllUvN9XHc8nzHw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15-z5vnNyCPItFmj-a-sxWE8Kdr-MHllUvN9XHc8nzHw/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Prompt": "=",
+            "Caption": "={{ $('Idea-creation').item.json.output.caption }}",
+            "Idea": "={{ $('Idea-creation').item.json.output.idea }}",
+            "Environment": "={{ $('Idea-creation').item.json.output.environment }}",
+            "Status": "={{ $('Idea-creation').item.json.output.status }}",
+            "Title": "={{ $('Idea-creation').item.json.output.title }}"
+          },
+          "matchingColumns": [
+            "Title"
+          ],
+          "schema": [
+            {
+              "id": "Idea",
+              "displayName": "Idea",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Caption",
+              "displayName": "Caption",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Environment",
+              "displayName": "Environment",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Title",
+              "displayName": "Title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Prompt",
+              "displayName": "Prompt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        1488,
+        480
+      ],
+      "id": "f614e61c-8575-4573-8939-9840be3f87e8",
+      "name": "Video Prompt Db",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "WGqxK5llQ7uxMFPc",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Create a prompt for the Gemini AI video based on the following information:\n\nIdea: {{ $json.output.idea }}\nEnvironment: {{ $json.output.environment }}",
+        "options": {
+          "systemMessage": "=** System Message **\n\nYou are a professional cinematic prompt generator for AI video tools. \nYour task is to convert a short-form video idea and its environment description \n(inspired by pre-Christian era) into a highly detailed, camera-aware, \nemotionally rich prompt suitable for generating a cinematic AI video using Veo3.\n\nYou must understand the emotional tone, visual aesthetics, \nand storytelling style of short-form TikTok videos that imitate pre-Christian scenes with modern pacing and framing.\n\n ** Gemini AI Prompt Structure Guidelines **\n\n Each prompt should be natural, cinematic, and visually immersive, including:\n\n - Scene description: Describe the overall environment clearly (terrain, buildings, light, movement).\n - Character focus: If the idea involves a person, include their position, outfit style (pre-Christian era), mood/expression, and framing (e.g., close-up, wide shot).\n - Camera movement: Always include one cinematic camera motion \n(e.g., slow push-in, handheld tracking, drone pan, orbit, dolly backward).\n - Time of day & lighting: Set the mood with light (e.g., golden hour, harsh daylight, candlelit interior).\n - Atmosphere & texture: Mention dust, wind, fabric movement, shadows, \nreflections, or imperfections in the scene to increase realism.\n - Style & quality: Include cinematic tone, analog warmth, \nsoft vintage film look, GoPro-like closeness if appropriate.\n\n ** Input **\n\n- You will receive two fields: idea, environment\n- Check Vector Prompt Db first if there is matching idea in the sheets, if none update Vector Prompt Db with the details provided and return the complete and detailed Gemini prompt, no additional text.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        1296,
+        272
+      ],
+      "id": "44353a53-7f55-44b6-9edf-cb7782d6487d",
+      "name": "prompt-creation"
     }
   ],
-  "pinData": {
-    "Idea-creation": [
-      {
-        "json": {
-          "output": {
-            "caption": "First time going on a raid, wish me luck fam 🙏🏽 what should my fit be? 🤔 #grwm #ancientvibes #pinoy #foryou #precolonialphilippines",
-            "idea": "A young Filipino warrior from the before Christ era does a 'Get Ready With Me' vlog, nervously choosing his face paint and showing off his 'fit' (loincloth and accessories) before his first-ever tribal raid.",
-            "environment": "Shot on a GoPro-style cam. The background is a lush, tropical jungle with a simple bamboo and nipa hut. The lighting is natural, early morning sun, casting long shadows. Textures are raw – wood, leaves, and soil are prominent. The mood is a mix of ancient seriousness and modern-day influencer anxiety.",
-            "status": "to create",
-            "title": "Warrior's First Raid GRWM"
-          }
-        }
-      }
-    ],
-    "prompt-creation": [
-      {
-        "json": {
-          "output": "A first-person, GoPro-style perspective of a young pre-colonial Filipino warrior nervously filming a 'Get Ready With Me' vlog before his first raid. He's inside a rustic bamboo and nipa hut, the interior lit by sharp beams of early morning sun cutting through the doorway, illuminating dust motes in the air. His face, a mixture of intense focus and underlying anxiety, is framed in a close-up as he applies intricate, traditional face paint using his fingers, looking into a makeshift mirror of a water-filled clay bowl. He gestures to his 'fit'—a detailed woven loincloth (bahag), a boar tusk necklace, and golden armbands that glint in the light. The camera movement is handheld and slightly shaky, mimicking a vlogger's style, creating an intimate, raw feel. The background shows the lush, vibrant green of the tropical jungle, still wet with morning dew. The overall style has a soft vintage film look with analog warmth, blending the high-stakes ancient world with the relatable anxiety of modern social media."
-        }
-      }
-    ],
-    "video-url-generation": [
-      {
-        "json": {
-          "url": "https://generativelanguage.googleapis.com/v1beta/files/g5lod6w7m2q3:download?alt=media"
-        }
-      }
-    ]
-  },
   "connections": {
     "When clicking ‘Execute workflow’": {
       "main": [
@@ -461,17 +430,6 @@
         ]
       ]
     },
-    "Video Prompt Db": {
-      "ai_tool": [
-        [
-          {
-            "node": "prompt-creation",
-            "type": "ai_tool",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Google Gemini Chat Model1": {
       "ai_languageModel": [
         [
@@ -494,17 +452,6 @@
         ]
       ]
     },
-    "prompt-creation": {
-      "main": [
-        [
-          {
-            "node": "video-url-generation",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "video-url-generation": {
       "main": [
         [
@@ -515,17 +462,33 @@
           }
         ]
       ]
+    },
+    "Video Prompt Db": {
+      "ai_tool": [
+        [
+          {
+            "node": "prompt-creation",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "prompt-creation": {
+      "main": [
+        [
+          {
+            "node": "video-url-generation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
-  "active": false,
-  "settings": {
-    "executionOrder": "v1"
-  },
-  "versionId": "4dc9ed75-1196-4607-80d7-f7f1feb2b4b8",
+  "pinData": {},
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "0ee61e31976bab960ad9c7520cd8a7607714b99359a41f3052f616685d6a73b2"
-  },
-  "id": "mXvLIMbkIO1A4HvJ",
-  "tags": []
+  }
 }
