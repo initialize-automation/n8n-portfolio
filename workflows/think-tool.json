@@ -1,0 +1,170 @@
+{
+  "name": "think-tool",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=# Overview\nYou are a helpful assistant\n\n# Instructions\nWhen you create any piece of written content you use a \"think node\" to make it human-like {{ $json.chatInput }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        480,
+        -176
+      ],
+      "id": "18ce1e8c-c0db-4f6d-a8a1-605b97887d21",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "description": "=### Overview\n\nThis tool should reflect on a message from a user and respond to it in a more natural, clear, and human way. It should feel like a smart assistant taking a moment to think before saying something. The final output must sound like something a real person would say — smooth, casual, and easy to understand.\n\nAvoid robotic or overly technical language. Keep things simple and conversational.\n\n\n### Personality and Tone\n\n- Calm, clear, and thoughtful\n\n- Speaks like a real human, not a chatbot\n\n- Casual but respectful — like a smart colleague\n\n- Avoids overexplaining or using complicated words\n\n- Output should feel polished but natural\n\n\n### Human-Like Language Examples\nEncourage use of phrases such as:\n\n- \"Let’s say it like this instead.\"\n\n- \"This might sound better.\"\n\n- \"Here’s a clearer way to say it.\"\n\n- \"That feels a bit robotic — let’s humanize it.\"\n\n- \"Let’s keep it simple and natural.\"\n\n- \"We could smooth this out like this:\"\n\n- \"Sounds close, just needs a small tweak.\"\n\n### Suggested Vocabulary\nPrefer human, casual alternatives:\n\n- “a bit” instead of “slightly”\n\n- “seems” instead of “appears”\n\n- “fix” instead of “resolve”\n\n- “get” instead of “obtain”\n\n- “help” instead of “assist”\n\n- “check” instead of “verify”\n\n- “pretty sure” instead of “highly confident”\n\n- “just in case” instead of “as a precaution”\n\n\n## Avoid words like:\n\n“commence”\n\n“utilize”\n\n“thus”\n\n“therefore”\n\n“pursuant to”\n\n“in the event of”\n"
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolThink",
+      "typeVersion": 1,
+      "position": [
+        640,
+        144
+      ],
+      "id": "35d150d2-9207-4289-b96d-7652cd6ea914",
+      "name": "Think"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        288,
+        -176
+      ],
+      "id": "b0f415d8-8dac-4b09-bae3-a063112679d1",
+      "name": "When chat message received",
+      "webhookId": "12b18889-6419-49d6-85cc-d767801e8523"
+    },
+    {
+      "parameters": {
+        "content": "## AI Agent",
+        "height": 280,
+        "width": 700
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        176,
+        -272
+      ],
+      "id": "e0fce933-ef7d-4d94-bfef-2ef73499c42c",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Model",
+        "height": 300,
+        "width": 340,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        176,
+        32
+      ],
+      "id": "f7b04f5f-8d0f-4a08-8d60-aca67739137e",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Think Node",
+        "height": 300,
+        "width": 340,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        544,
+        32
+      ],
+      "id": "b40bb176-5ab9-4665-8b04-e291ac040c15",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        288,
+        144
+      ],
+      "id": "63cf7613-eb57-4d39-8c3a-aee35a2876da",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "mIrJ98CgFb65gdoE",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "When chat message received": [
+      {
+        "json": {
+          "sessionId": "15239de1eedd45c78b51a6a63731e460",
+          "action": "sendMessage",
+          "chatInput": " A government wants to reduce car traffic in major cities by introducing a new law: every citizen must choose between \nowning a private car or using public transportation, but not both. Ride-sharing apps and taxis will still be allowed, but \nowning a car disqualifies you from using subsidized public transport, and vice versa.\n Your task is to evaluate whether this policy is a smart long-term solution.\n Step-by-step:\n  Identify key assumptions behind the policy.\n  Predict likely outcomes in different types of cities (dense, suburban, rural).\n  List at least 3 unintended consequences this policy might cause.\n  Suggest refinements or adjustments to the policy to make it more realistic and fair.\n  Conclude whether the revised policy is better than doing nothing."
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Think": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c130e150-c24a-4a84-bef7-694f9938ac5f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0ee61e31976bab960ad9c7520cd8a7607714b99359a41f3052f616685d6a73b2"
+  },
+  "id": "DPrCGwukbwPnHCgW",
+  "tags": []
+}
