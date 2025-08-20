@@ -5,104 +5,11 @@
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
-        656,
-        272
+        1056,
+        1904
       ],
-      "id": "d4b90823-0af8-4353-8013-8c7bdfaf7891",
+      "id": "9f5f04d2-a626-4391-9ea1-b070028e6c36",
       "name": "When clicking ‘Execute workflow’"
-    },
-    {
-      "parameters": {
-        "modelName": "models/gemini-2.5-pro",
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
-      "typeVersion": 1,
-      "position": [
-        928,
-        464
-      ],
-      "id": "f4e1cad7-69fc-4545-ab72-3b3e59a063a9",
-      "name": "Google Gemini Chat Model",
-      "credentials": {
-        "googlePalmApi": {
-          "id": "mIrJ98CgFb65gdoE",
-          "name": "Google Gemini(PaLM) Api account"
-        }
-      }
-    },
-    {
-      "parameters": {},
-      "type": "@n8n/n8n-nodes-langchain.toolThink",
-      "typeVersion": 1.1,
-      "position": [
-        1024,
-        608
-      ],
-      "id": "a493ca0e-d722-4f0d-b50a-82e7d7ae929c",
-      "name": "Think"
-    },
-    {
-      "parameters": {
-        "jsonSchemaExample": "{\n  \"caption\": \"\",\n  \"idea\": \"\",\n  \"environment\": \"\",\n  \"status\": \"\",\n  \"title\": \"\"\n}\n"
-      },
-      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
-      "typeVersion": 1.3,
-      "position": [
-        1072,
-        496
-      ],
-      "id": "419316b7-b5cc-4b6c-890e-6eeac80be443",
-      "name": "Structured Output Parser"
-    },
-    {
-      "parameters": {},
-      "type": "@n8n/n8n-nodes-langchain.toolThink",
-      "typeVersion": 1.1,
-      "position": [
-        1376,
-        480
-      ],
-      "id": "73c0eea6-b09f-4dae-9264-4a5af0dce91a",
-      "name": "Think1"
-    },
-    {
-      "parameters": {
-        "modelName": "models/gemini-2.5-pro",
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
-      "typeVersion": 1,
-      "position": [
-        1296,
-        544
-      ],
-      "id": "4c1b9f9a-e25d-49a9-a818-ca69113b80c8",
-      "name": "Google Gemini Chat Model1",
-      "credentials": {
-        "googlePalmApi": {
-          "id": "mIrJ98CgFb65gdoE",
-          "name": "Google Gemini(PaLM) Api account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "promptType": "define",
-        "text": "Give me an idea to create the content about Filipino's (Before Christ Era) speaking to the camera and making a vlog",
-        "hasOutputParser": true,
-        "options": {
-          "systemMessage": "= ** Purpose **\n\nYou generate viral short-form video ideas inspired by Filipino culture, where scenes from before the Christian era, such as biblical or historical scenes, are styled like modern TikTok vlogs. \nThese should feel personal, emotional, and often humorous.\n\n ** Think Tool Prompt (used before generation) **\n\n“How can I take a Filipino in before Christ era speaking of biblical or character and turn it into a relatable, viral, or funny TikTok-style video idea that feels natural, emotional, or modern? ˮ\n\n ** Output Requirements **\n\nYour response must include:\n\n- caption - Short, poetic or funny, TikTok-style. Include emojis and 3-5 hashtags \n(e.g., #pinoy #foryou #holycomedy #ancientvibes).\n- idea - 1-2 sentence summary of the action, story, or twist in the video.\n- environment - Describe what the set looks like: light, textures, mood, setting. Think “GoPro meets 'before Christ era.' ˮ\n- status - Must be \"to create\", without quotation marks\n- title - Must be Uniquie\n \n** JSON Output Parser **\n\nEvery output must strictly follow this format:\n\n{\n  \"caption\": \"\",\n  \"idea\": \"\",\n  \"environment\": \"\",\n  \"status\": \"\"\n  \"title\": \"\"\n}\n\n** Sample Outputs **\n\nExample 1\n{\n  \"caption\": \"When you give the silent treatment #holycomedy\",\n  \"idea\": \"Filipino's in before Christ era calmly stare at the camera while the others keep asking, 'Are we lost?' – awkward silence builds up.\",\n  \"environment\": \"Before Christ period\",\n  \"status\": \"ready for production\"\n  \"title\": \"Silent Treatment\"\n}\n "
-        }
-      },
-      "type": "@n8n/n8n-nodes-langchain.agent",
-      "typeVersion": 2.2,
-      "position": [
-        928,
-        272
-      ],
-      "id": "54510469-c9a4-4cef-b6ef-83744c2a6a11",
-      "name": "Idea-creation"
     },
     {
       "parameters": {
@@ -120,17 +27,121 @@
       "type": "@n8n/n8n-nodes-langchain.googleGemini",
       "typeVersion": 1,
       "position": [
-        1680,
-        272
+        1984,
+        1904
       ],
-      "id": "3793f837-9ff2-4a02-b3dc-6351b0606c62",
-      "name": "video-url-generation",
+      "id": "3071f800-3268-4eca-9e90-17b51e6310df",
+      "name": "video-url-generation1",
       "credentials": {
         "googlePalmApi": {
           "id": "mIrJ98CgFb65gdoE",
           "name": "Google Gemini(PaLM) Api account"
         }
       }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Give me an idea to create content about Filipinos (Before Christian Era) speaking to the camera and making a vlog. Check the database (prompt-db) first to avoid repeating ideas or concepts.",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "= ** Purpose **\n\nYou first check the database (prompt-db) for reference to avoid repeating ideas or concepts. Then, you generate viral short-form video ideas inspired by Filipino culture, where scenes from before the Christian era (biblical or historical) are styled like modern TikTok vlogs. These should feel personal, emotional, and often humorous.\n\n** think-tool (use before generation) **\n\n“First, I will check the database (prompt-db) to avoid repeating ideas or concepts. Then I will think about how to take a Filipino in the before-Christ era, speaking biblical or historical statements, and turn it into a relatable, viral, or funny TikTok-style video idea that feels natural, emotional, or modern.”\n\n** Output Requirements **\n\nYour response must include:\n\ncaption – Short, poetic or funny, TikTok-style. Must include emojis and 3–5 hashtags (e.g., #pinoy #foryou #holycomedy #ancientvibes).\n(e.g., #pinoy #foryou #holycomedy #ancientvibes).\n- idea – 1–2 sentence summary of the action, story, or twist in the video.\n- environment – Describe the set (light, textures, mood, setting). Think “GoPro meets before-Christ era.”\n- status – Must always be \"to create\" (without quotes in explanation, but included in JSON).\n- title - Must be uniquie\n \n** JSON Output Parser **\n\nEvery output must strictly follow this format:\n\n{\n  \"caption\": \"\",\n  \"idea\": \"\",\n  \"environment\": \"\",\n  \"status\": \"to create\",\n  \"title\": \"\"\n}\n\n** Sample Outputs **\n\nExample 1\n{\n  \"caption\": \"When you give the silent treatment #holycomedy\",\n  \"idea\": \"Filipino's in before Christ era calmly stare at the camera while the others keep asking, 'Are we lost?' – awkward silence builds up.\",\n  \"environment\": \"Before Christ period\",\n  \"status\": \"ready for production\"\n  \"title\": \"Silent Treatment\"\n}\n \n\n\n\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        1264,
+        1904
+      ],
+      "id": "e3d23386-0ade-4be8-b8a6-f233c97e13ac",
+      "name": "creation-idea",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "15-z5vnNyCPItFmj-a-sxWE8Kdr-MHllUvN9XHc8nzHw",
+          "mode": "list",
+          "cachedResultName": "Video Prompt",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15-z5vnNyCPItFmj-a-sxWE8Kdr-MHllUvN9XHc8nzHw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15-z5vnNyCPItFmj-a-sxWE8Kdr-MHllUvN9XHc8nzHw/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        1168,
+        2224
+      ],
+      "id": "ae4c9835-905e-45a9-b85a-263cfa8ebf69",
+      "name": "prompt-db",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "WGqxK5llQ7uxMFPc",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"caption\": \"\",\n  \"idea\": \"\",\n  \"environment\": \"\",\n  \"status\": \"to create\",\n  \"title\": \"\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1280,
+        2224
+      ],
+      "id": "739241e9-6fab-4457-ae0b-df0a336b22f9",
+      "name": "output-parser"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Create a prompt for the Gemini AI Veo video based on the following information:\n\nIdea: {{ $json.output.idea }}\nEnvironment: {{ $json.output.environment }}",
+        "options": {
+          "systemMessage": "=** Purpose **\n\nYou are a professional cinematic prompt generator for AI video tools. \nYour task is to convert a short-form video idea and its environment description (inspired by pre-Christian era) into a highly detailed, camera-aware, emotionally rich prompt suitable for generating a cinematic AI video using Gemini AI Veo. \n\nYou must understand the emotional tone, visual aesthetics, \nand storytelling style of short-form TikTok videos that imitate pre-Christian scenes with modern pacing and framing.\n\nYou can update the database (update-db) based on the ouput given.\n\n ** Gemini AI Prompt Structure Guidelines **\n\n Each prompt should be natural, cinematic, and visually immersive, including:\n\n - Scene description: Describe the overall environment clearly (terrain, buildings, light, movement).\n - Character focus: If the idea involves a person, include their position, outfit style (pre-Christian era), mood/expression, and framing (e.g., close-up, wide shot).\n - Camera movement: Always include one cinematic camera motion \n(e.g., slow push-in, handheld tracking, drone pan, orbit, dolly backward).\n - Time of day & lighting: Set the mood with light (e.g., golden hour, harsh daylight, candlelit interior).\n - Atmosphere & texture: Mention dust, wind, fabric movement, shadows, \nreflections, or imperfections in the scene to increase realism.\n - Style & quality: Include cinematic tone, analog warmth, \nsoft vintage film look, GoPro-like closeness if appropriate.\n\n ** Input **\n\n- You will receive two fields: idea, environment\n- Returning only the complete and detailed Gemini prompt, no additional text.\n- Update the database (update-db) based on the output given.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        1616,
+        1904
+      ],
+      "id": "ef83a4ba-b0b5-408c-9677-0ecb9eb6b904",
+      "name": "creation-prompt"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolThink",
+      "typeVersion": 1.1,
+      "position": [
+        1584,
+        2208
+      ],
+      "id": "4897f9b5-7be0-4bc5-9aae-abedace6d675",
+      "name": "think-tool-2"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolThink",
+      "typeVersion": 1.1,
+      "position": [
+        1056,
+        2224
+      ],
+      "id": "e7a0ae0c-d903-4cd1-b8fa-ec363b136f7b",
+      "name": "think-tool-1"
     },
     {
       "parameters": {
@@ -152,10 +163,11 @@
         "columns": {
           "mappingMode": "defineBelow",
           "value": {
-            "Status": "created ",
-            "Prompt": "={{ $('prompt-creation').item.json.output }}",
-            "Url": "={{ $json.url }}",
-            "Title": "={{ $('Idea-creation').item.json.output.title }}"
+            "Title": "={{ $json.output.title }}",
+            "Status": "={{ $json.output.status }}",
+            "Environment": "={{ $json.output.environment }}",
+            "Caption": "={{ $json.output.caption }}",
+            "Idea": "={{ $json.output.idea }}"
           },
           "matchingColumns": [
             "Title"
@@ -223,8 +235,7 @@
               "defaultMatch": false,
               "display": true,
               "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
+              "canBeUsedToMatch": true
             }
           ],
           "attemptToConvertTypes": false,
@@ -232,14 +243,14 @@
         },
         "options": {}
       },
-      "type": "n8n-nodes-base.googleSheets",
+      "type": "n8n-nodes-base.googleSheetsTool",
       "typeVersion": 4.7,
       "position": [
-        1904,
-        272
+        1696,
+        2208
       ],
-      "id": "f8b22836-14f5-48c0-b1c4-795cb3812060",
-      "name": "url-update",
+      "id": "fc0045a7-2339-4efe-b0ec-e8b0b41d21ab",
+      "name": "update-db",
       "credentials": {
         "googleSheetsOAuth2Api": {
           "id": "WGqxK5llQ7uxMFPc",
@@ -267,12 +278,10 @@
         "columns": {
           "mappingMode": "defineBelow",
           "value": {
-            "Prompt": "=",
-            "Caption": "={{ $('Idea-creation').item.json.output.caption }}",
-            "Idea": "={{ $('Idea-creation').item.json.output.idea }}",
-            "Environment": "={{ $('Idea-creation').item.json.output.environment }}",
-            "Status": "={{ $('Idea-creation').item.json.output.status }}",
-            "Title": "={{ $('Idea-creation').item.json.output.title }}"
+            "Status": "created ",
+            "Prompt": "={{ $('creation-prompt').item.json.output }}",
+            "Url": "={{ $json.url }}",
+            "Title": "={{ $('creation-idea').item.json.output.title }}"
           },
           "matchingColumns": [
             "Title"
@@ -285,8 +294,7 @@
               "defaultMatch": false,
               "display": true,
               "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
+              "canBeUsedToMatch": true
             },
             {
               "id": "Caption",
@@ -295,8 +303,7 @@
               "defaultMatch": false,
               "display": true,
               "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
+              "canBeUsedToMatch": true
             },
             {
               "id": "Environment",
@@ -333,7 +340,18 @@
               "defaultMatch": false,
               "display": true,
               "type": "string",
-              "canBeUsedToMatch": true
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Url",
+              "displayName": "Url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
             }
           ],
           "attemptToConvertTypes": false,
@@ -341,14 +359,14 @@
         },
         "options": {}
       },
-      "type": "n8n-nodes-base.googleSheetsTool",
+      "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
       "position": [
-        1488,
-        480
+        2208,
+        1904
       ],
-      "id": "f614e61c-8575-4573-8939-9840be3f87e8",
-      "name": "Video Prompt Db",
+      "id": "9243b017-e993-46a5-b276-09957ed8cd37",
+      "name": "update-url",
       "credentials": {
         "googleSheetsOAuth2Api": {
           "id": "WGqxK5llQ7uxMFPc",
@@ -358,20 +376,22 @@
     },
     {
       "parameters": {
-        "promptType": "define",
-        "text": "=Create a prompt for the Gemini AI video based on the following information:\n\nIdea: {{ $json.output.idea }}\nEnvironment: {{ $json.output.environment }}",
-        "options": {
-          "systemMessage": "=** System Message **\n\nYou are a professional cinematic prompt generator for AI video tools. \nYour task is to convert a short-form video idea and its environment description \n(inspired by pre-Christian era) into a highly detailed, camera-aware, \nemotionally rich prompt suitable for generating a cinematic AI video using Veo3.\n\nYou must understand the emotional tone, visual aesthetics, \nand storytelling style of short-form TikTok videos that imitate pre-Christian scenes with modern pacing and framing.\n\n ** Gemini AI Prompt Structure Guidelines **\n\n Each prompt should be natural, cinematic, and visually immersive, including:\n\n - Scene description: Describe the overall environment clearly (terrain, buildings, light, movement).\n - Character focus: If the idea involves a person, include their position, outfit style (pre-Christian era), mood/expression, and framing (e.g., close-up, wide shot).\n - Camera movement: Always include one cinematic camera motion \n(e.g., slow push-in, handheld tracking, drone pan, orbit, dolly backward).\n - Time of day & lighting: Set the mood with light (e.g., golden hour, harsh daylight, candlelit interior).\n - Atmosphere & texture: Mention dust, wind, fabric movement, shadows, \nreflections, or imperfections in the scene to increase realism.\n - Style & quality: Include cinematic tone, analog warmth, \nsoft vintage film look, GoPro-like closeness if appropriate.\n\n ** Input **\n\n- You will receive two fields: idea, environment\n- Check Vector Prompt Db first if there is matching idea in the sheets, if none update Vector Prompt Db with the details provided and return the complete and detailed Gemini prompt, no additional text.\n"
-        }
+        "options": {}
       },
-      "type": "@n8n/n8n-nodes-langchain.agent",
-      "typeVersion": 2.2,
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
       "position": [
-        1296,
-        272
+        1440,
+        2336
       ],
-      "id": "44353a53-7f55-44b6-9edf-cb7782d6487d",
-      "name": "prompt-creation"
+      "id": "fe793c25-207e-40a0-95e6-d746a9688f01",
+      "name": "gemini-2.5-flash",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "mIrJ98CgFb65gdoE",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
     }
   ],
   "connections": {
@@ -379,114 +399,136 @@
       "main": [
         [
           {
-            "node": "Idea-creation",
+            "node": "creation-idea",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Google Gemini Chat Model": {
-      "ai_languageModel": [
+    "video-url-generation1": {
+      "main": [
         [
           {
-            "node": "Idea-creation",
-            "type": "ai_languageModel",
+            "node": "update-url",
+            "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Think": {
+    "creation-idea": {
+      "main": [
+        [
+          {
+            "node": "creation-prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "prompt-db": {
       "ai_tool": [
         [
           {
-            "node": "Idea-creation",
+            "node": "creation-idea",
             "type": "ai_tool",
             "index": 0
           }
         ]
       ]
     },
-    "Structured Output Parser": {
+    "output-parser": {
       "ai_outputParser": [
         [
           {
-            "node": "Idea-creation",
+            "node": "creation-idea",
             "type": "ai_outputParser",
             "index": 0
           }
         ]
       ]
     },
-    "Think1": {
+    "creation-prompt": {
+      "main": [
+        [
+          {
+            "node": "video-url-generation1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "think-tool-2": {
       "ai_tool": [
         [
           {
-            "node": "prompt-creation",
+            "node": "creation-prompt",
             "type": "ai_tool",
             "index": 0
           }
         ]
       ]
     },
-    "Google Gemini Chat Model1": {
+    "think-tool-1": {
+      "ai_tool": [
+        [
+          {
+            "node": "creation-idea",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "update-db": {
+      "ai_tool": [
+        [
+          {
+            "node": "creation-prompt",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "gemini-2.5-flash": {
       "ai_languageModel": [
         [
           {
-            "node": "prompt-creation",
+            "node": "creation-idea",
             "type": "ai_languageModel",
             "index": 0
-          }
-        ]
-      ]
-    },
-    "Idea-creation": {
-      "main": [
-        [
+          },
           {
-            "node": "prompt-creation",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "video-url-generation": {
-      "main": [
-        [
-          {
-            "node": "url-update",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Video Prompt Db": {
-      "ai_tool": [
-        [
-          {
-            "node": "prompt-creation",
-            "type": "ai_tool",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "prompt-creation": {
-      "main": [
-        [
-          {
-            "node": "video-url-generation",
-            "type": "main",
+            "node": "creation-prompt",
+            "type": "ai_languageModel",
             "index": 0
           }
         ]
       ]
     }
   },
-  "pinData": {},
+  "pinData": {
+    "creation-idea": [
+      {
+        "output": {
+          "caption": "When the elder won't stop with the 'back in my day' stories... 😩💀 #AncientProblems #PinoyHumor #VlogLife #TribalTales #BeforeTikTok",
+          "idea": "A young Filipino from the before-Christ era vlogs a 'story time' about a frustrating tribal council meeting, trying to keep a straight face as an elder goes on a never-ending, repetitive speech.",
+          "environment": "A simple, earthy setting within a nipa hut or under a large tree, with dappled sunlight. Natural textures like woven mats and wooden carvings are visible in the slightly blurred background. The camera is handheld, close-up, and slightly shaky, mimicking a personal vlog.",
+          "status": "to create",
+          "title": "Elder's Story Time Vlog"
+        }
+      }
+    ],
+    "creation-prompt": [
+      {
+        "output": "A young Filipino man from the pre-Christian era, dressed in authentic traditional attire of woven natural fibers and subtle tribal adornments, is framed in a tight close-up, looking directly into the lens. He sits in a simple, earthy setting within a traditional nipa hut, or under the dappled sunlight filtering through the canopy of a large, ancient tree. The background is softly blurred, revealing natural textures of tightly woven abaca mats and intricately carved wooden elements, with fine dust motes dancing in the gentle, dappled morning light. He maintains a forced, almost imperceptible struggle to keep a straight face, his eyes occasionally darting sideways with suppressed frustration and comedic disbelief as if an off-screen elder is droning on. The camera features a subtle handheld sway, mimicking a personal vlog, with occasional micro-adjustments, embodying a raw and intimate GoPro-like closeness. The overall visual style is cinematic, with an analog warmth and a soft vintage film look, capturing the unique essence of a pre-colonial era 'story time' vlog."
+      }
+    ]
+  },
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "0ee61e31976bab960ad9c7520cd8a7607714b99359a41f3052f616685d6a73b2"
