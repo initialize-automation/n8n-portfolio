@@ -1,4 +1,4 @@
-# N8N-AI-Automation
+# ⚙️ N8N-AI-Automation
 
 Hi, I’m **Jayson** an aspiring AI automation specialist passionate about building practical automations using **n8n, AI agents, and open-source tools**.  
 
