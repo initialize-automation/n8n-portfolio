@@ -1,4 +1,4 @@
-# Think Tool
+# 🧠 Think Tool
 
 ## 📖 Overview  
 The **Think Tool** workflow demonstrates how to integrate a **Think Node** within an AI Agent setup. This allows you to define reasoning steps, establish behavior, and guide the AI’s decision-making process through carefully designed prompts.  
