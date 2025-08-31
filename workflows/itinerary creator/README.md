@@ -1,26 +1,28 @@
-# 📊 Finances Tracker
-
+# 🗺️ Itinerary Creator
 
 ## 📖 Overview  
-The **Finances Tracker** workflow enables you to send **text, images, or audio messages** via Telegram. An AI agent will then **analyze, classify, and summarize** your input before sending the results back directly to your Telegram chat.  
+The **Itinerary Creator** workflow lets you send a request via **Telegram** to automatically generate a travel itinerary for any location. The AI can **search the web**, **find relevant pictures**, and even **email the complete itinerary** to you. A quick summary is also sent back to your Telegram chat for instant feedback.  
 
-<img width="2130" height="995" alt="image" src="https://github.com/user-attachments/assets/2f590ffe-e1f7-4ef0-99bc-0855fbdb8a54" />
-
-## ⚙️ Workflow  
-
-Listens to messages from Telegram and passes them to an **AI agent** for financial analysis and summarization. The results are sent back to the Telegram bot.  
-
-<img width="1972" height="556" alt="image" src="https://github.com/user-attachments/assets/babb8a3f-0427-42c4-aaf9-8e573154ca91" />
-
-### Sub-Workflow  
-
-Handles **audio and image inputs** by converting them into text or analyzable formats before sending them to the AI for processing.  
-
-<img width="2144" height="368" alt="image" src="https://github.com/user-attachments/assets/31c517a8-992e-4fa2-aa89-e7267faf491c" />
+<img width="2058" height="772" alt="Itinerary Creator Demo" src="https://github.com/user-attachments/assets/6275523e-7000-486b-a25f-c08367a1e578" />
 
 ---
 
-## 🛠 Tools
-- **Gemini AI** → Chat model, image analysis, and audio analysis  
-- **Telegram Bot** → User interaction and message handling  
+## ⚙️ Workflow  
+1. User sends a message request via **Telegram Bot**.  (Contains your desire location, email, how many days. e.g. "create a zambales trip for 5D4N with pictures and send in to *****@gmail.com")
+2. Request is passed to an **AI Agent**.  
+3. AI uses **Tavily** to search the web for location details.  
+4. **Pexels API** fetches relevant pictures.  
+5. A complete itinerary is compiled and sent via **Gmail**.  
+6. A summary is sent back to the **Telegram Bot** for quick access.  
+
+<img width="2058" height="772" alt="Workflow Screenshot" src="https://github.com/user-attachments/assets/6275523e-7000-486b-a25f-c08367a1e578" />
+
+---
+
+## 🛠 Tools & Technologies  
+- **Gemini AI** → Itinerary creation and summarization  
+- **Telegram Bot** → User interaction and input handling  
+- **Tavily API** → Web search for itinerary details  
+- **Pexels API** → Fetch relevant images  
+- **Gmail** → Email delivery of the full itinerary  
 - **n8n** → Workflow orchestration and automation  
