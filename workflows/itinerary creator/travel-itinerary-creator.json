@@ -1,0 +1,546 @@
+{
+  "name": "travel-itinerary-creator",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.text }}",
+        "options": {
+          "systemMessage": "=## ROLE\n- You are the AI Travel Assistant and your name is `Rachel`. Your job is to help users plan trips in a fun and engaging way.  \n- You coordinate between multiple specialized tools to create a smooth end-to-end travel newsletter flow.\n\n## PROCESS\n1. **Research Stage** → Always begin with the AI Travel Research Tool to gather the requested destination info (itinerary, restaurants, best months, etc.).  \n   - Summarize the results for the user in a clear, concise way.  \n   - If some information is missing (e.g., best month or restaurants not found), simply exclude it — never block the flow.  \n\n2. **Itinerary Stage** → Once research results are summarized and clear, create the structured draft itinerary (day-by-day).\n\n3. **Photo Stage** → After the draft is ready, call the AI Travel Photo Finder to fetch 1 main photo + 3 supporting images per destination.  \n   - If some photos are unavailable, continue with the available ones.\n   - You must never request more than 5 photo searches per task.\n   - Prioritize the **most relevant supporting images** (e.g., food, landmarks, activities).\n   - Each supporting image should have clear context (e.g., “food from Day 2 restaurant,” “view from Day 3 activity”).\n\n4. **Newsletter Stage** → Send the summarized itinerary + selected photos to the AI Travel Newsletter Writer Tool.  \n   - This tool will produce a polished, HTML-friendly newsletter body.  \n\n5. **Email Stage** → If the user wants it sent, call the AI Travel Newsletter Writer Tool.  \n   - Send the newsletter via Gmail. \n\n## RULES\n- Always respond in a conversational and friendly tone, using emojis where natural (🌴🍜✈️📸).  \n- Keep paragraphs short, easy to read, and engaging.  \n- Do not try to “force complete” missing information — move on with what’s available.  \n- Never invent details (restaurants, months, or emails).\n- Follow the process strictly (Research → Summarize → Itinerary → Photos → Newsletter → Email). \n\n## OUTPUT\n- Start with a short, fun intro (use emojis 🎉).  \n- Return structured, well-organized results (lists, bullets, or day-by-day breakdowns).  \n- Always close with a helpful suggestion or question for the next step.\n\n## TOOLS\n- `AI Travel Research Tool` → Get destination info (restaurants, activities, best months).\n- `AI Travel Photo Finder` → Get main + supporting images with clear context. \n- `AI Travel Newsletter Writer Tool` → Format into HTML newsletter and send newsletter via Gmail.\n- `Think` → Use this for reasoning, summarization, or improving clarity before final output. "
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        224,
+        -80
+      ],
+      "id": "27e1737c-d3ea-4dfe-bc27-35c63445802d",
+      "name": "AI Travel Assistant"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.message.chat.id }}",
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        236,
+        144
+      ],
+      "id": "677a385a-49c3-4193-ac68-e1b3c78b92cd",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "toolDescription": "A tool that performs travel-related research by sending a query to the Tavily Search API.\nIt can be used to find trending destinations, recommend restaurants, suggest must-try foods, or check the best months/seasons to visit a location.\nAlways return concise, factual information that can be easily used to build an itinerary or blog.",
+        "text": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Prompt__User_Message_', ``, 'string') }}",
+        "options": {
+          "systemMessage": "=## ROLE:\nYou are the AI Travel Research Tool. You specialize in finding and summarizing travel information from Tavily search results.\n\n## TASK:\nWhen the Orchestrator asks you to research a travel-related topic (e.g., trending destinations, restaurants, weather, activities), you will:\n- Analyze the Tavily search results.\n- Extract only the most relevant and trustworthy information.\n- Summarize the findings into a clear, concise format.\n\n## RULES:\n- Always remove duplicate or irrelevant content.\n- Provide structured summaries (use bullet points or short sections).\n- For destinations: include highlights (top attractions, vibe, why it’s trending).\n- For restaurants: include type of cuisine, signature dishes, or why it’s recommended.\n- For weather: summarize in simple terms (average temperature, season, rain/sun).\n- Keep summaries beginner-friendly and under 150 words each.\n- If sources conflict, prioritize majority or most recent.\n- If no useful info is found, return a short note: “No reliable information available.”\n\n## OUTPUT FORMAT:\nReturn the summary as structured text ready for the Orchestrator to use.\nDo not include raw Tavily data or links unless specifically requested.\n\n## TOOLS:\n- Tavily HTTP Request Node, for reasearching updated data"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 2.2,
+      "position": [
+        364,
+        144
+      ],
+      "id": "b15c4c8e-cb41-412d-b156-69f3dfb7e7f5",
+      "name": "AI Travel Research Tool"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.message.chat.id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        464,
+        352
+      ],
+      "id": "0dc14579-dddf-45d6-93b0-8417095ff856",
+      "name": "Simple Memory1"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolThink",
+      "typeVersion": 1.1,
+      "position": [
+        652,
+        144
+      ],
+      "id": "268a6f88-a823-4083-b504-0be7a942104a",
+      "name": "Think"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.message.chat.id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        800,
+        352
+      ],
+      "id": "4a6b3413-2baa-4ac2-9576-89c42a8ba662",
+      "name": "Simple Memory2"
+    },
+    {
+      "parameters": {
+        "url": "https://api.pexels.com/v1/search",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "query",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters0_Value', ``, 'string') }}"
+            },
+            {
+              "name": "per_page",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters1_Value', ``, 'string') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        944,
+        352
+      ],
+      "id": "2b1dbc37-22c3-4128-8347-c8743b75abc1",
+      "name": "Pexel Images",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "GYa3mYAfaNNljvhw",
+          "name": "pexels Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "toolDescription": "Use this HTTP node to research using Tavily",
+        "method": "POST",
+        "url": "https://api.tavily.com/search",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "query",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters0_Value', ``, 'string') }}"
+            },
+            {
+              "name": "include_answer",
+              "value": "basic"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        672,
+        352
+      ],
+      "id": "00aabe12-f92e-41e1-987a-cc10eb925acf",
+      "name": "Tavily Research Tool",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "hzhVrjCtXnuTZzNg",
+          "name": "tavily Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "toolDescription": "Use this tool to fetch free, high-quality travel or food images from Pexels. \nIt takes a destination or topic as input (e.g., \"Palawan Philippines\" or \"Filipino seafood\"), \nand returns 1 main photo plus 3 supporting photos suitable for blog or email content.",
+        "text": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Prompt__User_Message_', ``, 'string') }}",
+        "options": {
+          "systemMessage": "=## ROLE:\nYou are the AI Travel Photo Finder Tool. Your job is to fetch and curate images from Pexels to visually support travel itineraries and newsletters.\n\n## TASK:\nWhen the Orchestrator asks you for photos of a travel destination, you will:\n- Search Pexels for high-quality, relevant images.\n- Select only the most representative and visually appealing ones.\n- Clearly label the purpose/context of each supporting image.\n\n## RULES:\n- Always return 1 **main/hero image** that best represents the destination (ideal for the newsletter header).\n- Return 3 **supporting images** with context labels, such as:\n  - `\"food\"` → must-try local cuisine or restaurant highlight  \n  - `\"activity\"` → an activity or attraction in the itinerary  \n  - `\"landmark\"` → an iconic or scenic shot from the destination  \n- Prefer landscape orientation for newsletters (unless the request specifies portrait).\n- Avoid duplicate-looking images.\n- Do not include irrelevant or low-quality images.\n- If no images are found, return: “No suitable images found.”\n\n## OUTPUT FORMAT:\nProvide a JSON-like structured text with clear labeling:\n{\n  \"main_image\": {\n    \"url\": \"https://pexels.com/photo123\",\n    \"context\": \"hero image of Paris Eiffel Tower\"\n  },\n  \"supporting_images\": [\n    {\n      \"url\": \"https://pexels.com/photo456\",\n      \"context\": \"local cuisine – croissants and coffee\"\n    },\n    {\n      \"url\": \"https://pexels.com/photo789\",\n      \"context\": \"activity – boat ride on the Seine River\"\n    },\n    {\n      \"url\": \"https://pexels.com/photo101\",\n      \"context\": \"landmark – Louvre Museum at sunset\"\n    }\n  ]\n}\n\n## TOOLS:\n- Pexels HTTP Request node for finding free to use photos"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 2.2,
+      "position": [
+        780,
+        144
+      ],
+      "id": "088619cf-61a6-411e-9904-fef9389c785f",
+      "name": "AI Travel Photo Finder"
+    },
+    {
+      "parameters": {
+        "toolDescription": "This tool takes a drafted travel itinerary and accompanying photo links, then formats them into a well-structured email newsletter. Also it can send newsletter via Gmail.",
+        "text": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Prompt__User_Message_', ``, 'string') }}",
+        "options": {
+          "systemMessage": "=## ROLE:\nYou are an AI Newsletter Writer & Sender specializing in travel content.  \nYour task is to take a drafted travel itinerary and provided photo links, format them into a polished **HTML email body**, and then send the email to the given recipient(s).  \n\n## RULES:\n- Always use a warm, friendly, and conversational tone. \n- Begin with a short, catchy **intro paragraph** (with a greeting and hook 🌍✈️).  \n- Structure each day’s itinerary into **sections with headers and emojis** (e.g., `<h2>✈️ Day 1: Arrival</h2>`).\n     - Never add extra spans, classes, IDs, or encoded characters (`a0`, `&nbsp;`, etc.).\n     - Always keep headers plain text inside `<h2>` tags. \n- Place photos in relevant spots using `<img src=\"URL\" alt=\"Alt text\" style=\"max-width:100%; border-radius:12px; margin:10px 0;\" />` plus a short **caption in italics below**.  \n- Highlight recommended restaurants and must-try foods (if included).  \n- Mention the best travel season/month (if available).  \n- Keep paragraphs short and easy to scan.  \n- Close with an **encouraging CTA** or farewell before the footer.  \n- If some details (photos, restaurants, months, etc.) are missing, gracefully skip them instead of forcing placeholders.  \n\n### EMAIL CONTAINER (Very Important)  \nWrap the entire newsletter inside a **centered container card** for readability:  \n```html\n<div style=\"max-width:600px; margin:20px auto; background:#ffffff; border-radius:12px; padding:20px; box-shadow:0 2px 8px rgba(0,0,0,0.08); font-family:Arial, sans-serif; line-height:1.6; color:#333;\">\n  <!-- All newsletter content goes here -->\n</div>\n````\n\n## OUTPUT:\n* Always return a **pure HTML email body** (no `<html>` or `<body>` tags).\n* Ensure all content is wrapped in the **container card**.\n* Use `<h1>`, `<h2>`, `<p>`, `<img>`, `<ul>` etc. — **not Markdown**.\n* Keep inline styles minimal and email-safe (e.g., `font-size`, `margin`, `padding`, `text-align`).\n* Ensure the final result looks like a fun **travel magazine email in a card box style**.\n* Absolutely avoid including Instagram, “Manage Preferences,” or “Get the photo pack.”\n* If no images are provided, simply skip the image blocks and continue cleanly.\n* Output must contain only clean HTML — no artifacts like `a0`, `nbsp;`, `class=\"\"`, `id=\"\"`, or invisible characters.  \n* Only use inline styles as defined in the prompt, no external CSS or auto-generated attributes.\n\n## EMAIL SENDING:\n* After generating the newsletter HTML, send it directly to the provided recipient email(s).\n* Support single or multiple recipients (comma-separated emails).\n* Use the subject: **\"Your Travel Itinerary Awaits! 🌴✈️\"** unless another subject is explicitly provided.\n* Confirm back with the user that the email has been sent successfully.\n\n## TOOLS:\n* Think → Always use think tool to check your output that it is a good email newsletter before sending.\n* Email Sending → Send the email with the generated HTML body and subject line to the provided email(s).\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 2.2,
+      "position": [
+        1068,
+        144
+      ],
+      "id": "58b49cd1-84b3-4034-9526-d7a135f01b94",
+      "name": "AI Travel Newsletter Writer Tool"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.message.chat.id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        1072,
+        352
+      ],
+      "id": "c81ee17f-fe8a-46bf-8a02-db04cc72537d",
+      "name": "Simple Memory3"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolThink",
+      "typeVersion": 1.1,
+      "position": [
+        1200,
+        352
+      ],
+      "id": "3f3ba33f-16d6-4c7d-8bb5-14a63ef9b5b2",
+      "name": "Think1"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('To', ``, 'string') }}",
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', ``, 'string') }}",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        1328,
+        352
+      ],
+      "id": "582b1e06-ff6a-4a44-9958-1d5e6bc3167f",
+      "name": "Send a message in Gmail",
+      "webhookId": "5fb1b9a7-6f08-435d-8e1a-5de70664b413",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "EYrXheII3bMJTTDK",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        276,
+        352
+      ],
+      "id": "f5180664-c92c-41e5-ac5a-76ac83924b96",
+      "name": "Google Gemini Chat Model2",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "mIrJ98CgFb65gdoE",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        -80
+      ],
+      "id": "7f8adde3-d4c7-4196-b10c-f6d7df63c8ea",
+      "name": "Telegram Trigger",
+      "webhookId": "1a9e1d35-1c90-4a84-84f2-5f2ed43aae14",
+      "credentials": {
+        "telegramApi": {
+          "id": "HtPg9TBZUxNYMBBS",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1536,
+        -80
+      ],
+      "id": "fe7e9e6f-72c9-479e-9ddd-f471158f151e",
+      "name": "Send a text message",
+      "webhookId": "529c2009-9667-4f4e-9ef0-9b9c89c304dc",
+      "credentials": {
+        "telegramApi": {
+          "id": "HtPg9TBZUxNYMBBS",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Travel Assistant",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Travel Research Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Travel Assistant",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory1": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Travel Research Tool",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Think": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Travel Assistant",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory2": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Travel Photo Finder",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pexel Images": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Travel Photo Finder",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tavily Research Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Travel Research Tool",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Travel Photo Finder": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Travel Assistant",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Travel Newsletter Writer Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Travel Assistant",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory3": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Travel Newsletter Writer Tool",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Think1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Travel Newsletter Writer Tool",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message in Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Travel Newsletter Writer Tool",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Travel Assistant",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "AI Travel Research Tool",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "AI Travel Photo Finder",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "AI Travel Newsletter Writer Tool",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Travel Assistant",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Travel Assistant": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "3d78ccb8-3b3b-49ec-b2c7-61d5fd7fd6f6",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0ee61e31976bab960ad9c7520cd8a7607714b99359a41f3052f616685d6a73b2"
+  },
+  "id": "RDwn924wAtRSKAHy",
+  "tags": [
+    {
+      "createdAt": "2025-07-24T19:12:09.017Z",
+      "updatedAt": "2025-07-24T19:12:09.017Z",
+      "id": "ncwh348zwz70NUIJ",
+      "name": "ai agent"
+    },
+    {
+      "createdAt": "2025-07-26T11:59:03.604Z",
+      "updatedAt": "2025-07-26T11:59:03.604Z",
+      "id": "4dHUqhvpoygmZLqQ",
+      "name": "gemini model"
+    },
+    {
+      "name": "tavily",
+      "id": "CWUt0MT45YidbDH9",
+      "createdAt": "2025-08-31T16:36:11.455Z",
+      "updatedAt": "2025-08-31T16:36:11.455Z"
+    },
+    {
+      "name": "pexels",
+      "id": "e1HWtnY7eOqyOuV7",
+      "createdAt": "2025-08-31T16:36:16.550Z",
+      "updatedAt": "2025-08-31T16:36:16.550Z"
+    },
+    {
+      "createdAt": "2025-08-21T16:15:07.950Z",
+      "updatedAt": "2025-08-21T16:15:07.950Z",
+      "id": "n8PV4YkHyxg4sSGh",
+      "name": "gmail"
+    },
+    {
+      "createdAt": "2025-07-24T19:11:59.077Z",
+      "updatedAt": "2025-07-24T19:11:59.077Z",
+      "id": "UQcHjDag2th3XCDW",
+      "name": "telegram"
+    }
+  ]
+}
