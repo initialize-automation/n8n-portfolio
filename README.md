@@ -1,6 +1,6 @@
-# ⚙️ N8N
+# ⚙️ N8N Portfolio
 
-Hi, I’m **Jayson** an aspiring AI automation specialist passionate about building practical automations using **n8n, AI agents, and open-source tools**.  
+Hi, I’m **Jayson** an aspiring AI automation specialist passionate about building practical automations using **n8n, AI agents, and open-source tools**.    
 
 This portfolio documents my journey from beginner workflows to advanced automations designed to solve real-world business challenges. Each project highlights:  
 
