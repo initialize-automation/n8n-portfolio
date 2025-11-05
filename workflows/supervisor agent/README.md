@@ -35,7 +35,7 @@ The system consists of four main components:
 - Performs web searches
 - Uses Wikipedia and SerpAPI to gather information
 - Returns summarized and structured results
-- 
+  
 <img width="1208" height="675" alt="image" src="https://github.com/user-attachments/assets/adc3ecd0-7ab5-4804-907d-17e7f433b86d" />
 
 ---
