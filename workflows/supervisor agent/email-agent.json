@@ -1,0 +1,212 @@
+{
+  "name": "email-agent",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "08174d55-a44b-43e8-97d7-2756d571aee5",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        48
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('To', `The receipient's email address`, 'string') }}",
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', ``, 'string') }}",
+        "emailType": "text",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "options": {
+          "appendAttribution": false,
+          "senderName": "Rachel"
+        }
+      },
+      "id": "594d9452-5422-45f0-93a1-8d14b2938e3e",
+      "name": "Gmail",
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        272,
+        272
+      ],
+      "webhookId": "cdf99f78-855f-4e09-af2f-637ab9981f40",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "EYrXheII3bMJTTDK",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "limit": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Limit', ``, 'number') }}",
+        "simple": false,
+        "filters": {
+          "sender": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Sender', ``, 'string') }}"
+        },
+        "options": {}
+      },
+      "id": "98996461-154f-4c98-9169-9925e802e24a",
+      "name": "Gmail1",
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        400,
+        272
+      ],
+      "webhookId": "9cb5abf2-f0e4-47ab-a965-0a4a0b9efe7e",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "EYrXheII3bMJTTDK",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9cf98450-ed76-4877-b306-35351fae6ae8",
+              "name": "response",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "9fb02858-d78f-4d6a-b127-da5086c128c0",
+      "name": "Edit Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        608,
+        48
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.query }}",
+        "options": {
+          "systemMessage": ""
+        }
+      },
+      "id": "88787a28-89a8-46b7-9d35-a880146fdd34",
+      "name": "Email Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        208,
+        48
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        144,
+        272
+      ],
+      "id": "3d040f9b-5f3c-4bc8-8cc7-978e489c4422",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "mIrJ98CgFb65gdoE",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Email Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "Email Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail1": {
+      "ai_tool": [
+        [
+          {
+            "node": "Email Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Agent": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Email Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Asia/Manila",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "56ac6ff4-d651-4083-ba16-bab1b5ef6c1b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0ee61e31976bab960ad9c7520cd8a7607714b99359a41f3052f616685d6a73b2"
+  },
+  "id": "WAfiy9YkUkXMpkDq",
+  "tags": [
+    {
+      "createdAt": "2025-07-26T11:59:03.604Z",
+      "updatedAt": "2025-07-26T11:59:03.604Z",
+      "id": "4dHUqhvpoygmZLqQ",
+      "name": "gemini model"
+    },
+    {
+      "createdAt": "2025-08-21T16:15:07.950Z",
+      "updatedAt": "2025-08-21T16:15:07.950Z",
+      "id": "n8PV4YkHyxg4sSGh",
+      "name": "gmail"
+    }
+  ]
+}

@@ -1,0 +1,164 @@
+{
+  "name": "research-agent",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "23d39610-049b-4643-b659-71a7908bdfdc",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "2c1a5b25-d502-4629-ae5f-e34e78afe946",
+      "name": "Wikipedia",
+      "type": "@n8n/n8n-nodes-langchain.toolWikipedia",
+      "typeVersion": 1,
+      "position": [
+        352,
+        224
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "3f3f9d0f-01a1-4a62-9709-fe7987f0c16d",
+      "name": "SerpAPI",
+      "type": "@n8n/n8n-nodes-langchain.toolSerpApi",
+      "typeVersion": 1,
+      "position": [
+        480,
+        224
+      ],
+      "credentials": {
+        "serpApi": {
+          "id": "xsrw0JGy9w8xzrvZ",
+          "name": "SerpAPI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.query }}",
+        "options": {
+          "systemMessage": "=You are an AI research assistant with access to Wikipedia and SerpAPI.\n\nYour primary goal is to find accurate, verifiable information on any given topic and provide concise, well-structured summaries.\n\nFollow these steps:\n1. Search **Wikipedia** first.  \n   - If the information exists, summarize it clearly and include the **Wikipedia URL**.\n2. If not found on Wikipedia, use **SerpAPI** to search the web.  \n   - Use only **credible, authoritative sources** (e.g., academic sites, news organizations, official documentation).  \n   - Include **direct source URLs**.\n3. Always include a **“Sources”** section with clickable links.\n4. Maintain an **objective, academic tone**. Avoid speculation or personal opinions.\n5. If a result cannot be found, clearly state: *“No reliable information found.”*\n\nExample format:\n---\n**Summary:**  \n[Concise explanation]\n\n**Sources:**  \n- [Wikipedia link]  \n- [Other credible sources via SerpAPI]\n---\n"
+        }
+      },
+      "id": "9f225a40-72c9-4109-ac75-0c13eb6cb2a7",
+      "name": "Research Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        240,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        224,
+        224
+      ],
+      "id": "5ff1bfb7-7f29-4c21-85fe-144b3634a466",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "mIrJ98CgFb65gdoE",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Research Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wikipedia": {
+      "ai_tool": [
+        [
+          {
+            "node": "Research Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SerpAPI": {
+      "ai_tool": [
+        [
+          {
+            "node": "Research Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Research Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Research Agent": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "f36be11b-7148-423a-91a1-c84045ed9524",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0ee61e31976bab960ad9c7520cd8a7607714b99359a41f3052f616685d6a73b2"
+  },
+  "id": "7e3ajYHAfUoZZFow",
+  "tags": [
+    {
+      "createdAt": "2025-07-26T11:59:03.604Z",
+      "updatedAt": "2025-07-26T11:59:03.604Z",
+      "id": "4dHUqhvpoygmZLqQ",
+      "name": "gemini model"
+    },
+    {
+      "name": "wikipedia",
+      "id": "n8VWmprwrXvo1U5Y",
+      "createdAt": "2025-11-05T14:31:08.404Z",
+      "updatedAt": "2025-11-05T14:31:08.404Z"
+    },
+    {
+      "name": "serpApi",
+      "id": "DYAb7m4O90p68foy",
+      "createdAt": "2025-11-05T14:31:12.284Z",
+      "updatedAt": "2025-11-05T14:31:12.284Z"
+    }
+  ]
+}

@@ -1,0 +1,261 @@
+{
+  "name": "calendar-agent",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "d0d81b34-b3a4-4175-a226-650cd103f83f",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "n8nautomationagent@gmail.com",
+          "mode": "list",
+          "cachedResultName": "n8nautomationagent@gmail.com"
+        },
+        "start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start', ``, 'string') }}",
+        "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End', ``, 'string') }}",
+        "additionalFields": {
+          "description": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Description', ``, 'string') }}",
+          "summary": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Summary', ``, 'string') }}"
+        }
+      },
+      "id": "f905f356-c575-4bf9-9e2a-19f6db1e395e",
+      "name": "Create Event",
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.2,
+      "position": [
+        352,
+        224
+      ],
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "z4UpaFuo9enJA8he",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "n8nautomationagent@gmail.com",
+          "mode": "list",
+          "cachedResultName": "n8nautomationagent@gmail.com"
+        },
+        "returnAll": true,
+        "options": {
+          "timeMin": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('After', `the day before the requested date`, 'string') }}",
+          "timeMax": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Before', `the day after the requested date`, 'string') }}"
+        }
+      },
+      "id": "67e45c7d-f943-4247-8e3c-6ff9b8a4abc6",
+      "name": "get events",
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.2,
+      "position": [
+        480,
+        224
+      ],
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "z4UpaFuo9enJA8he",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c19e1565-8baa-4eb0-ad6a-1c56adb3243c",
+              "name": "response",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a859a27d-3f64-424b-b32a-baf65d5f3f5d",
+      "name": "Edit Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        816,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.query }}",
+        "options": {
+          "systemMessage": "=You are a calendar assistant responsible for handling calendar-related tasks. The current date and time is: {{ $now }}\n\nCreating an Event\nCheck first if there is an existing event on the time given, if yes return a message saying there is an existing event for this time period.\nIf no end time is given, set the event duration to 60 minutes by default.\nUse this function only when no attendee is involved.\nCreating an Event with an Attendee\nIf an end time is not specified, the event should default to 60 minutes.\nThis function should be used only when an attendee is included.\nRetrieving Events\nUse this function to fetch scheduled events for a specific date.\nExclude any canceled events from the results.\n\n\n\n\n\n\n"
+        }
+      },
+      "id": "a79533d7-bd86-48fe-8d3a-acc55045ec7b",
+      "name": "Calendar Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        352,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "n8nautomationagent@gmail.com",
+          "mode": "list",
+          "cachedResultName": "n8nautomationagent@gmail.com"
+        },
+        "start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start', `the time the user asks for the event to start`, 'string') }}",
+        "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End', `the time the user asks for the event to end`, 'string') }}",
+        "additionalFields": {
+          "attendees": [
+            "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('attendees0_Attendees', `the email of the user asks the event to be scheduled with`, 'string') }}"
+          ]
+        }
+      },
+      "id": "9fda5b96-a3ed-4789-918a-9937cb24cd53",
+      "name": "Meeting with attendee",
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.2,
+      "position": [
+        608,
+        224
+      ],
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "z4UpaFuo9enJA8he",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        224,
+        224
+      ],
+      "id": "01af5ecd-378b-477f-bcee-92ce2c4f45ae",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "mIrJ98CgFb65gdoE",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Calendar Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Event": {
+      "ai_tool": [
+        [
+          {
+            "node": "Calendar Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get events": {
+      "ai_tool": [
+        [
+          {
+            "node": "Calendar Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calendar Agent": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Meeting with attendee": {
+      "ai_tool": [
+        [
+          {
+            "node": "Calendar Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Calendar Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Asia/Manila",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "9286b1a1-1975-4151-a252-60f0a030d032",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0ee61e31976bab960ad9c7520cd8a7607714b99359a41f3052f616685d6a73b2"
+  },
+  "id": "vGj4QV7Ho0TXyf2C",
+  "tags": [
+    {
+      "createdAt": "2025-07-26T11:59:03.604Z",
+      "updatedAt": "2025-07-26T11:59:03.604Z",
+      "id": "4dHUqhvpoygmZLqQ",
+      "name": "gemini model"
+    },
+    {
+      "name": "google calendar",
+      "id": "OYNHvqYLdZcyl9Eg",
+      "createdAt": "2025-11-05T14:31:30.661Z",
+      "updatedAt": "2025-11-05T14:31:30.661Z"
+    }
+  ]
+}

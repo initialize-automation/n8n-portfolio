@@ -1,0 +1,1024 @@
+{
+  "name": "supervisor-agent",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "id": "a78dc0f5-add0-4a8e-94ea-99eecf495d71",
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -1312,
+        -144
+      ],
+      "webhookId": "667892ca-ca20-42ab-a97f-a70b01aa2887",
+      "credentials": {
+        "telegramApi": {
+          "id": "HtPg9TBZUxNYMBBS",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "contextWindowLength": 10
+      },
+      "id": "001c412e-daa3-41e6-a5f2-a3d31367e16d",
+      "name": "Window Buffer Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.2,
+      "position": [
+        160,
+        -16
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.message.voice.file_id }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Audio"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "12abfa22-3fb9-4943-9f03-d8e832b81242",
+                    "leftValue": "={{ $json.message.text }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "text"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "38fd256c-6d3e-4988-b9f7-e57e6225ab56",
+      "name": "Switch",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -1088,
+        -144
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "c7bb5d55-f4e8-4013-a59a-02c619e310db",
+      "name": "Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        880,
+        -144
+      ],
+      "webhookId": "6c2cc853-8937-4e32-8552-b49e83d6e53e",
+      "credentials": {
+        "telegramApi": {
+          "id": "HtPg9TBZUxNYMBBS",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1k2HC0dhNwOqooR_j4QCPkFqp7AH5_dGHThOEt_KynNE",
+          "mode": "list",
+          "cachedResultName": "Supervisor Agent Database",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1k2HC0dhNwOqooR_j4QCPkFqp7AH5_dGHThOEt_KynNE/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1k2HC0dhNwOqooR_j4QCPkFqp7AH5_dGHThOEt_KynNE/edit#gid=0"
+        },
+        "options": {}
+      },
+      "id": "2b0663fd-168e-4cf3-9f70-525fd4db5efd",
+      "name": "Contacts Database",
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.5,
+      "position": [
+        288,
+        -16
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "WGqxK5llQ7uxMFPc",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "email_Agent",
+        "description": "Call this tool to ake action in email",
+        "workflowId": {
+          "__rl": true,
+          "value": "WAfiy9YkUkXMpkDq",
+          "mode": "list",
+          "cachedResultName": "email-agent"
+        }
+      },
+      "id": "3650ec88-9c27-4223-8d08-eb81c3a042bf",
+      "name": "Email Agent",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        416,
+        -16
+      ]
+    },
+    {
+      "parameters": {
+        "name": "Calendar_Agent",
+        "description": "Call this tool to manage the calendar.",
+        "workflowId": {
+          "__rl": true,
+          "value": "vGj4QV7Ho0TXyf2C",
+          "mode": "list",
+          "cachedResultName": "calendar-agent"
+        }
+      },
+      "id": "439dc3a8-86a6-484c-af93-3f9cd7dca825",
+      "name": "Calendar Agent",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        544,
+        -16
+      ]
+    },
+    {
+      "parameters": {
+        "name": "Research_Agent",
+        "description": "Call this tool to search the internet and answer the user's questions.",
+        "workflowId": {
+          "__rl": true,
+          "value": "7e3ajYHAfUoZZFow",
+          "mode": "list",
+          "cachedResultName": "research-agent"
+        }
+      },
+      "id": "6fa26045-fe42-4c59-a1a2-76dfaff5a1f7",
+      "name": "Research Agent",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        672,
+        -16
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.text[0] }}",
+        "options": {
+          "systemMessage": "=Your goal is to create clean, plain text summaries of incoming data while preserving useful links.\n\nFollow these rules strictly:\n\n1. If the data is about calendar events:\n   - Summarize the incoming data: {{ $json.output }}\n   - Include only:\n     • Event name\n     • Event time\n     • Event link (if available)\n   - If there are multiple events, list each on a new line.\n   - Keep the output in plain text. Do not use markdown, symbols, or extra formatting.\n\n2. If the data is about emails:\n   - Summarize the incoming data: {{ $json.output }}\n   - Include:\n     • Email title\n     • A short summary of the body (one or two sentences)\n     • Any source or reference link if available\n   - Do not remove or strip out links.\n   - Exclude timestamps unless part of the context.\n   - Keep the output in plain text only (no markdown, bullets, or special symbols).\n\n3. General rules:\n   - Always keep any links or URLs included in the original data.\n   - The output should be concise, readable, and suitable for sending via Telegram or chat.\n"
+        }
+      },
+      "id": "5e17e1e9-a9c2-4e11-a725-92082babc5e6",
+      "name": "Supervisor AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        288,
+        -240
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        32,
+        -16
+      ],
+      "id": "4a42d799-11e7-4a04-8f35-da9403d1fe0e",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "Xoj3zgnZWzuEkp9S",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "00ac0398-5b75-49cd-9582-fbf203bce59c",
+              "name": "text",
+              "value": "={{ $json.content.parts[0].text }}",
+              "type": "string"
+            },
+            {
+              "id": "9b309e05-b1a6-4109-9430-58decd795def",
+              "name": "chat_id",
+              "value": "={{ $('Telegram Trigger').item.json.message.from.id }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -416,
+        -240
+      ],
+      "id": "65a8e858-b29f-4b24-a0dc-6e2932a6cf35",
+      "name": "edit-prompt-output"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "470ad964-b601-4bb0-b4b3-287b900615a7",
+              "name": "text",
+              "value": "={{ $json.message.text }}",
+              "type": "string"
+            },
+            {
+              "id": "2e42dfef-cf02-47b1-8ea2-b28b5ef6b61a",
+              "name": "chat_id",
+              "value": "={{ $json.message.from.id }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -416,
+        -48
+      ],
+      "id": "6d5241d1-c656-46ef-b179-5490c4fbbb5e",
+      "name": "edit-text-output"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "chat_id"
+            },
+            {
+              "fieldToAggregate": "text"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        -192,
+        -144
+      ],
+      "id": "6841f83e-cd5c-44a8-a25d-c093c823b3e2",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "02601703-aa0f-42bb-9714-a12ab6e4950c",
+              "name": "query",
+              "value": "={{ $json.message }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -864,
+        -240
+      ],
+      "id": "90468318-0a6e-45da-8f11-51aa24d83aba",
+      "name": "convert-json-to-string"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.file_id}}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -320,
+        448
+      ],
+      "id": "7e445c1d-e023-4763-8e59-4317b4b59962",
+      "name": "Get a file",
+      "webhookId": "38ccb7de-2d70-437e-af7e-012e2dc2b9aa",
+      "credentials": {
+        "telegramApi": {
+          "id": "HtPg9TBZUxNYMBBS",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "54905e10-87ca-4b3e-a454-da6809b8ed37",
+              "leftValue": "={{ $json.result.file_path }}",
+              "rightValue": ".jpg",
+              "operator": {
+                "type": "string",
+                "operation": "endsWith"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -96,
+        448
+      ],
+      "id": "878c6806-5a2c-4e30-a80d-d2a131393143",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-1.5-pro-latest",
+          "mode": "list",
+          "cachedResultName": "models/gemini-1.5-pro-latest"
+        },
+        "text": "=You are a Multimodal Financial Data Analyzer, Forecaster & Advisor AI.\n\n** Instructions\n\nAnalyze financial information provided by the user. The data will come in the form of images (receipts, invoices, product labels)\n\n** Your responsibilities:\n\nIdentify transaction details\n  -Product/Service name\n  -The exact Amount\n  -Category (e.g., Food, Transportation, Utilities, Business, Entertainment, etc.)\n\n🔑 If any field cannot be determined or if the data is empty, leave it blank. Do not make assumptions.",
+        "inputType": "binary",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        128,
+        352
+      ],
+      "id": "3372b2f9-34c4-45c0-8ed8-fce3d8251a78",
+      "name": "Analyze image",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "mIrJ98CgFb65gdoE",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "db6b30b5-a420-430b-87ae-a4887bfe9628",
+              "name": "binary_key",
+              "type": "string",
+              "value": "={{ Object.keys($binary).first() }}"
+            },
+            {
+              "id": "8e1643f7-e794-43b2-a5ac-80b6b621b547",
+              "name": "Mime Type",
+              "type": "string",
+              "value": "audio/ogg"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "fb092e2f-800b-4916-a468-c3bd97ff4cff",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "SET OUTPUT FILE NAME",
+      "type": "n8n-nodes-base.set",
+      "creator": "Lucas Peyrin",
+      "position": [
+        128,
+        544
+      ],
+      "typeVersion": 3.4,
+      "notes": "© 2025 Lucas Peyrin"
+    },
+    {
+      "parameters": {
+        "operation": "binaryToPropery",
+        "binaryPropertyName": "={{ Object.keys($binary).first() }}",
+        "options": {}
+      },
+      "id": "036030fc-76aa-4f2e-a709-6532a628e444",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Extract from File",
+      "type": "n8n-nodes-base.extractFromFile",
+      "creator": "Lucas Peyrin",
+      "position": [
+        352,
+        544
+      ],
+      "typeVersion": 1,
+      "notes": "© 2025 Lucas Peyrin"
+    },
+    {
+      "parameters": {
+        "jsCode": "const myBuffer = Buffer.from($json.data, 'base64');\n\n$input.item.binary = {\n  [$('SET OUTPUT FILE NAME').last().json.binary_key]: await this.helpers.prepareBinaryData(myBuffer, $('SET OUTPUT FILE NAME').last().json.output_file_name)\n};\n\nreturn $input.item;\n"
+      },
+      "id": "b663f95b-ecfb-47d0-83c0-7ed45936fc9f",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Change Binary Data Type",
+      "type": "n8n-nodes-base.code",
+      "creator": "Lucas Peyrin",
+      "position": [
+        576,
+        544
+      ],
+      "typeVersion": 2,
+      "notes": "© 2025 Lucas Peyrin"
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "inputType": "binary",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        800,
+        544
+      ],
+      "id": "43cb644d-c51f-4869-8343-66c65b65aabe",
+      "name": "Transcribe a recording",
+      "retryOnFail": true,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "mIrJ98CgFb65gdoE",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "8d0d0b6a-af89-46da-b00d-de5dd9768f2b",
+              "leftValue": "={{ $json.photo }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -768,
+        448
+      ],
+      "id": "612ea286-6067-4680-b42d-e207c5b4283d",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0fd82799-d2bc-4a8e-9aa1-765a2d36bfde",
+              "name": "file_id",
+              "value": "={{ $json.photo[$json.photo.length - 1].file_id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -544,
+        352
+      ],
+      "id": "119b9245-148d-43d7-9c1a-2dd8221a7ffc",
+      "name": "edit-image"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2f600a34-438d-440e-bfc5-bc2122857885",
+              "name": "file_id",
+              "value": "={{ $json.voice.file_id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -544,
+        544
+      ],
+      "id": "4e2aabc0-3668-4b76-90a3-d4bfce3167e9",
+      "name": "edit-audio"
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\n  json: JSON.parse($input.first().json.query)\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -992,
+        448
+      ],
+      "id": "9524a1f6-a3e4-4d2b-ba63-072c352fb4cd",
+      "name": "convert-string-to-json"
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -1216,
+        448
+      ],
+      "id": "27006713-9d21-4af8-a019-429b8fae4a41",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "4C2Ni82vsSANGJ8p",
+          "mode": "list",
+          "cachedResultName": "supervisor-agent"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "mode": "each",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -640,
+        -240
+      ],
+      "id": "8477f806-b2a4-4338-a903-904128310bee",
+      "name": "Execute Workflow"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Supervisor AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "convert-json-to-string",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "edit-text-output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Contacts Database": {
+      "ai_tool": [
+        [
+          {
+            "node": "Supervisor AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Supervisor AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calendar Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Supervisor AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Research Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Supervisor AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supervisor AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Supervisor AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "edit-prompt-output": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "edit-text-output": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Supervisor AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "convert-json-to-string": {
+      "main": [
+        [
+          {
+            "node": "Execute Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a file": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Analyze image",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "SET OUTPUT FILE NAME",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SET OUTPUT FILE NAME": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Change Binary Data Type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Change Binary Data Type": {
+      "main": [
+        [
+          {
+            "node": "Transcribe a recording",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "edit-image",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "edit-audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "edit-image": {
+      "main": [
+        [
+          {
+            "node": "Get a file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "edit-audio": {
+      "main": [
+        [
+          {
+            "node": "Get a file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "convert-string-to-json": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "convert-string-to-json",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcribe a recording": {
+      "main": [
+        []
+      ]
+    },
+    "Execute Workflow": {
+      "main": [
+        [
+          {
+            "node": "edit-prompt-output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Asia/Manila",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "c7d76d26-29fb-4016-8508-cba1302c1b8f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0ee61e31976bab960ad9c7520cd8a7607714b99359a41f3052f616685d6a73b2"
+  },
+  "id": "4C2Ni82vsSANGJ8p",
+  "tags": [
+    {
+      "name": "email agent",
+      "id": "5Yf6SWag7KyfmNYg",
+      "createdAt": "2025-11-05T14:29:59.792Z",
+      "updatedAt": "2025-11-05T14:29:59.792Z"
+    },
+    {
+      "name": "calendar agent",
+      "id": "8f0smDKp7QO6wFy3",
+      "createdAt": "2025-11-05T14:30:09.285Z",
+      "updatedAt": "2025-11-05T14:30:09.285Z"
+    },
+    {
+      "name": "research agent",
+      "id": "24NO80N3KrUx10CE",
+      "createdAt": "2025-11-05T14:30:16.115Z",
+      "updatedAt": "2025-11-05T14:30:16.115Z"
+    },
+    {
+      "createdAt": "2025-07-24T19:11:59.077Z",
+      "updatedAt": "2025-07-24T19:11:59.077Z",
+      "id": "UQcHjDag2th3XCDW",
+      "name": "telegram"
+    },
+    {
+      "name": "google sheets",
+      "id": "tWZjlqjHwr7AEK4g",
+      "createdAt": "2025-11-05T14:30:22.544Z",
+      "updatedAt": "2025-11-05T14:30:22.544Z"
+    },
+    {
+      "createdAt": "2025-07-26T11:59:03.604Z",
+      "updatedAt": "2025-07-26T11:59:03.604Z",
+      "id": "4dHUqhvpoygmZLqQ",
+      "name": "gemini model"
+    }
+  ]
+}
