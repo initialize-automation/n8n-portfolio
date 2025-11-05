@@ -1,20 +1,46 @@
-# 🎥 Supervisor Agent
+# 🧑‍💼 Supervisor Agent
 
 ## 📖 Overview
-The **Video Prompt Creator** workflow runs daily to generate **unique video prompt ideas**. It checks Google Sheets to avoid repeating previous prompts, saves the new idea, and then generates a **video URL** for easy access and tracking.
-<img width="1912" height="796" alt="image" src="https://github.com/user-attachments/assets/aa0f76c7-a402-45f1-8912-b2e0b44dba41" />
+The Supervisor Agent is an AI-powered workflow built in n8n that coordinates three specialized sub-agents. Email Agent, Calendar Agent, and Research Agent along with a Google Sheets database for retrieving structured data.
+
+The Supervisor Agent acts as the central controller: it receives user prompts (via Telegram or other interfaces), analyzes the request, and dynamically routes tasks to the appropriate supporting agent. Each agent handles a specific domain and returns results back to the Supervisor Agent, which then sends a unified response to the user.
+
+<img width="2077" height="925" alt="image" src="https://github.com/user-attachments/assets/3cc45a13-1dda-475d-86c1-3eb2ed6dca54" />
 
 ---
 ## ⚙️ Workflow  
-- Scheduled to run **once per day**.  
-- Reads data from **Google Sheets** to avoid duplicate ideas.  
-- The **AI Agent** creates a new prompt idea.  
-- New prompt is saved back into **Google Sheets**.  
-- A **video URL** is generated and logged for use.  
-<img width="1912" height="796" alt="image" src="https://github.com/user-attachments/assets/aa0f76c7-a402-45f1-8912-b2e0b44dba41" />
+The system consists of four main components:
+
+🧠 Supervisor Agent
+Interprets messages, images, voice, and text.
+Determines which supporting agent to call.
+Combines results and sends the final response back to the user.
+
+📅 Calendar Agent
+Creates events
+Retrieves events
+"Future Update : Updates or deletes calendar items "
+
+<img width="2007" height="748" alt="image" src="https://github.com/user-attachments/assets/7af1c054-ce85-45cb-bed7-56a59f8c4c71" />
+
+📧 Email Agent
+Sends emails
+Uses Google Sheets as a database for email-related metadata
+
+<img width="1642" height="765" alt="image" src="https://github.com/user-attachments/assets/afcf3982-5d11-4c76-9d7d-0ba81763ce12" />
+
+🔍 Research Agent
+Performs web searches
+Uses Wikipedia and SerpAPI to gather information
+Returns summarized and structured results
+
+<img width="1208" height="675" alt="image" src="https://github.com/user-attachments/assets/adc3ecd0-7ab5-4804-907d-17e7f433b86d" />
 
 ---
 ## 🛠 Tools  
 - **n8n** → Workflow orchestration  
-- **Google Sheets** → Data storage and duplication check  
-- **AI Agent** → Prompt generation and video URL creation  
+- **Google Sheets** → Data storage
+- **SerpApi and Wikipedia** → Web Search
+- **Google Gmail** → Sending emails
+- **Google Calendar** → Create and retrieves events
+- **AI Agent** → Task processing and intelligent decision-making
