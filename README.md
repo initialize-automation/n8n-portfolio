@@ -15,6 +15,6 @@ This portfolio documents my journey from beginner workflows to advanced automati
 
 - **n8n** local host (Docker Compose → ngrok tunnel)  
 - **Gemini AI**  
-- **Google Cloud** (Google Sheets, Google Drive, Gmail)  
+- **Google Workspace** (Google Sheets, Google Drive, Gmail, Google Calendar)  
 - **APIs & Webhooks**  
 - **Telegram Bot**  
