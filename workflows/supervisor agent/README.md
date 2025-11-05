@@ -12,28 +12,30 @@ The Supervisor Agent acts as the central controller: it receives user prompts (v
 The system consists of four main components:
 
 🧠 Supervisor Agent
-Interprets messages, images, voice, and text.
-Determines which supporting agent to call.
-Combines results and sends the final response back to the user.
+- Interprets messages, images, voice, and text.
+- Determines which supporting agent to call.
+- Combines and summarize results and sends the final response back to the user.
+
+<img width="2031" height="492" alt="image" src="https://github.com/user-attachments/assets/6f1d60c5-77a1-46f1-b351-8149bc1aa1da" />
 
 📅 Calendar Agent
-Creates events
-Retrieves events
-"Future Update : Updates or deletes calendar items "
+- Creates events
+- Retrieves events
+- "Future Update : Updates or deletes calendar items "
 
 <img width="2007" height="748" alt="image" src="https://github.com/user-attachments/assets/7af1c054-ce85-45cb-bed7-56a59f8c4c71" />
 
 📧 Email Agent
-Sends emails
-Uses Google Sheets as a database for email-related metadata
+- Sends emails
+- Uses Google Sheets as a database for email-related metadata
 
 <img width="1642" height="765" alt="image" src="https://github.com/user-attachments/assets/afcf3982-5d11-4c76-9d7d-0ba81763ce12" />
 
 🔍 Research Agent
-Performs web searches
-Uses Wikipedia and SerpAPI to gather information
-Returns summarized and structured results
-
+- Performs web searches
+- Uses Wikipedia and SerpAPI to gather information
+- Returns summarized and structured results
+- 
 <img width="1208" height="675" alt="image" src="https://github.com/user-attachments/assets/adc3ecd0-7ab5-4804-907d-17e7f433b86d" />
 
 ---
