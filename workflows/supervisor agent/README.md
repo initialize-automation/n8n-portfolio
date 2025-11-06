@@ -12,7 +12,7 @@ The Supervisor Agent acts as the central controller: it receives user prompts (v
 The system consists of four main components:
 
 🧠 Supervisor Agent
-- Interprets messages, images, voice, and text.
+- Interprets messages, voice, and text.
 - Determines which supporting agent to call.
 - Combines and summarize results and sends the final response back to the user.
 
