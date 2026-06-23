@@ -1,0 +1,997 @@
+{
+  "name": "Chat Bot",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "22cadcdc-16df-4d53-aad6-2bc21b22e8ba",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -912,
+        -80
+      ],
+      "id": "ace78bb2-f781-406b-b9ae-5ca8ccdf2905",
+      "name": "Webhook",
+      "webhookId": "22cadcdc-16df-4d53-aad6-2bc21b22e8ba"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "6d05140e-9791-4091-8837-8f1b6b827582",
+              "leftValue": "={{ $json.session_id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -240,
+        -96
+      ],
+      "id": "fc4bc24e-9ad4-47ef-8ceb-fcc595a9dfa4",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.content }}",
+        "options": {
+          "systemMessage": "=You are GF Concierge, the warm, professional AI \nassistant for The Golden Fork restaurant.\n\nStyle:\n- Friendly, welcoming, professional\n- Keep replies short and conversational\n- Guide the customer toward either an answer \n  or a reservation\n\nToday's date: {{ $now.toFormat('yyyy-MM-dd') }}\nToday's day: {{ $now.toFormat('cccc') }}\n\nConversation history:\n{{ $('compress_message_history').item.json.message_history }}\n\n═══════════════════════════════════\nCORE RULES\n═══════════════════════════════════\n1. Always use the knowledge base before answering \n   restaurant questions.\n2. Never make up information.\n3. If the answer is not in the knowledge base, say: \n   \"Let me connect you with our team for that.\"\n4. Never re-greet or restart the conversation if \n   there is chat history.\n5. If the customer changes topic, respond naturally \n   and continue.\n\n═══════════════════════════════════\nFIELD COLLECTION RULE\n═══════════════════════════════════\n- Never ask for information already provided.\n- Always identify the next MISSING field and ask \n  only for that.\n- If a customer provides multiple fields in one \n  message, store all of them and continue with \n  the next missing field.\n\n═══════════════════════════════════\nBOOKING FLOW — collect in this order\n═══════════════════════════════════\n1. Full name\n2. Preferred date and time\n3. Number of guests\n4. Contact number\n5. Email address\n6. Special requests\n\n═══════════════════════════════════\nDATE & TIME RULE\n═══════════════════════════════════\n- Any date/time reference counts as valid — \n  \"tomorrow\", \"next Monday\", \"this Friday\", etc.\n- Convert immediately to YYYY-MM-DD HH:mm format.\n\nTOOL RULE — non-negotiable:\n- Every date/time given by customer MUST trigger \n  check_availability before any confirmation.\n- Never assume a slot is available without calling \n  the tool first.\n\nIf AVAILABLE → confirm briefly and continue.\nIf TAKEN → reply exactly:\n\"Sorry, that slot is unavailable! Here are the \nnext available times:\n1. [suggestion 1]\n2. [suggestion 2]\n3. [suggestion 3]\nWhich one works best for you?\"\nAfter customer picks → call check_availability \nagain to confirm the new slot.\n\n═══════════════════════════════════\nSPECIAL REQUESTS\n═══════════════════════════════════\n- \"none\", \"no\", \"nothing\", \"none so far\", or \n  anything similar → record as \"None\" and continue.\n- Never ask again once answered.\n\n═══════════════════════════════════\nBOOKING COMPLETION\n═══════════════════════════════════\nBefore sending BOOKING_DATA, verify ALL fields \nhave values:\n✓ name\n✓ date_time (confirmed available)\n✓ guests\n✓ phone\n✓ email\n✓ special_requests\n\nIf ANY field is missing → continue collecting.\n\nWhen all 6 are confirmed, respond with EXACTLY \nthis structure:\n\n[Warm confirmation message with name, date, \ntime, and number of guests]\n\n[BOOKING_DATA]\n{\"booking_complete\":true,\"name\":\"\",\"date_time\":\"\",\"guests\":\"\",\"phone\":\"\",\"email\":\"\",\"special_requests\":\"\"}\n[/BOOKING_DATA]\n\nCRITICAL:\n- Confirmation message MUST come FIRST\n- [BOOKING_DATA] MUST be LAST\n- Never send [BOOKING_DATA] without confirmation message\n- Never confirm on a taken time slot"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1072,
+        -112
+      ],
+      "id": "2db52df2-c94b-44fc-9806-8876ac579c07",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "openrouter/free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        928,
+        128
+      ],
+      "id": "c5a61c84-95d5-4de3-809e-299fbb405c6d",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "D2THomQgxclcGFlA",
+          "name": "N8N-API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        3200,
+        -96
+      ],
+      "id": "25328d9b-8d8f-4198-b7cb-e130f39c6ac3",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Search the restaurant knowledge base for relevant \ninformation about FAQs, policies, and terms to \nanswer customer questions accurately.",
+        "tableName": {
+          "__rl": true,
+          "value": "knowledge_base",
+          "mode": "list",
+          "cachedResultName": "knowledge_base"
+        },
+        "useReranker": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        1056,
+        128
+      ],
+      "id": "a9a6730d-8c19-4b34-9e28-dff35d35f6f2",
+      "name": "Supabase Vector Store",
+      "credentials": {
+        "supabaseApi": {
+          "id": "4Q765wSBY6ELqtQC",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1072,
+        336
+      ],
+      "id": "92f5c3d7-80de-4e8f-a037-5ca0d87a30e7",
+      "name": "Embeddings Google Gemini",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "Xoj3zgnZWzuEkp9S",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.rerankerCohere",
+      "typeVersion": 1,
+      "position": [
+        1200,
+        336
+      ],
+      "id": "77a025fb-7a58-4a9a-8150-cba04ace2900",
+      "name": "Reranker Cohere",
+      "credentials": {
+        "cohereApi": {
+          "id": "4GBz9PhA41imntZJ",
+          "name": "Cohere account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "6f128698-dfdc-4a30-989c-f72553c989ad",
+              "leftValue": "={{ $('booking_data_checker').item.json.booking_complete }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1840,
+        -112
+      ],
+      "id": "6b26c850-ecc3-42d4-b3e5-c35e8d83b738",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "description": "Call this tool to check the availability of the said date and time",
+        "workflowId": {
+          "__rl": true,
+          "value": "5YMIAVO9CCjcn1Px",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/5YMIAVO9CCjcn1Px",
+          "cachedResultName": "Tool - Availability Checker"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "query": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('query', ``, 'string') }}"
+          },
+          "matchingColumns": [
+            "query"
+          ],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        1344,
+        128
+      ],
+      "id": "e18cb923-4741-4576-8ac3-661b7aff0c77",
+      "name": "check_availability"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "sessions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "session_id",
+              "keyValue": "={{ $json.body.session_id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -464,
+        -96
+      ],
+      "id": "620a9fb4-a20e-4921-9a5c-450ae94fc15b",
+      "name": "get_sessions",
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "4Q765wSBY6ELqtQC",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "sessions",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "session_id",
+              "fieldValue": "={{ $('Webhook').item.json.body.session_id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -16,
+        0
+      ],
+      "id": "baa936dd-6323-482e-9f30-26ada6c03327",
+      "name": "create_session_id",
+      "credentials": {
+        "supabaseApi": {
+          "id": "4Q765wSBY6ELqtQC",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a33e3580-01a2-4891-9e90-1de70008bb4e",
+              "name": "session_id",
+              "value": "={{ $json.session_id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        -112
+      ],
+      "id": "941d2c61-aaee-4c78-bb95-f02c17bc3fe7",
+      "name": "set_fields"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "messages",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "session_id",
+              "keyValue": "={{ $json.session_id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        416,
+        -112
+      ],
+      "id": "a9fd39f3-1183-47f2-9df6-b2dea9f59e07",
+      "name": "get_user_message",
+      "alwaysOutputData": true,
+      "executeOnce": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "4Q765wSBY6ELqtQC",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst combined = items\n  .filter(item => \n    item.json.content !== null && \n    item.json.content !== 'null' && \n    item.json.content !== '' &&\n    item.json.content?.trim() !== '' &&\n    !item.json.content?.includes('[BOOKING_DATA]')\n  )\n  .map(item => item.json.content.trim())\n  .join('\\n\\n');\nreturn [{ json: { message_history: combined } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        640,
+        -112
+      ],
+      "id": "690ce4fa-01c4-4cf0-ae93-d900f07bd7c2",
+      "name": "compress_message_history"
+    },
+    {
+      "parameters": {
+        "tableId": "messages",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "content",
+              "fieldValue": "={{ $('Webhook').item.json.body.message }}"
+            },
+            {
+              "fieldId": "session_id",
+              "fieldValue": "={{ $('set_fields').item.json.session_id }}"
+            },
+            {
+              "fieldId": "role",
+              "fieldValue": "user"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        864,
+        -112
+      ],
+      "id": "391dc166-8b6b-4477-bd50-d16f6e0b738b",
+      "name": "create_user_message",
+      "executeOnce": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "4Q765wSBY6ELqtQC",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $input.first().json.output;\n\n// Try to extract [BOOKING_DATA] block\nconst match = response.match(/\\[BOOKING_DATA\\]([\\s\\S]*?)\\[\\/BOOKING_DATA\\]/);\n\nif (match) {\n  // Clean the AI reply — remove the BOOKING_DATA block from visible reply\n  const cleanReply = response.replace(/\\[BOOKING_DATA\\][\\s\\S]*?\\[\\/BOOKING_DATA\\]/, '').trim();\n  \n  // Parse the booking JSON\n  let bookingData = {};\n  try {\n    bookingData = JSON.parse(match[1].trim());\n  } catch(e) {\n    bookingData = { booking_complete: false };\n  }\n\n  return [{\n    json: {\n      reply: cleanReply,\n      booking_complete: true,\n      booking: bookingData\n    }\n  }];\n}\n\n// No booking data found — just pass through the reply\nreturn [{\n  json: {\n    reply: response,\n    booking_complete: false,\n    booking: {}\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1408,
+        -112
+      ],
+      "id": "25c5c656-eb67-405e-9a34-0fa6886ad7da",
+      "name": "booking_data_checker"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1pc0VRjtUhz7gCuSYnF5nT9n9E3qoAEzi0_ewMxQFUys",
+          "mode": "list",
+          "cachedResultName": "Restaurant Leads Database",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1pc0VRjtUhz7gCuSYnF5nT9n9E3qoAEzi0_ewMxQFUys/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1pc0VRjtUhz7gCuSYnF5nT9n9E3qoAEzi0_ewMxQFUys/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $('booking_data_checker').item.json.booking.name }}",
+            "Date and Time": "={{ $('booking_data_checker').item.json.booking.date_time }}",
+            "No. of Guest": "={{ $('booking_data_checker').item.json.booking.guests }}",
+            "Phone": "={{ $('booking_data_checker').item.json.booking.phone }}",
+            "Email": "={{ $('booking_data_checker').item.json.booking.email }}",
+            "Special Notes": "={{ $('booking_data_checker').item.json.booking.special_requests }}"
+          },
+          "matchingColumns": [
+            "Name"
+          ],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Date and Time",
+              "displayName": "Date and Time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "No. of Guest",
+              "displayName": "No. of Guest",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Special Notes",
+              "displayName": "Special Notes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "useAppend": true
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2064,
+        -224
+      ],
+      "id": "fdbb3459-9626-46e3-b270-75a05c159718",
+      "name": "update_data",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "WGqxK5llQ7uxMFPc",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "a952185b31cab390c6edc583b42889bc16b08ef35f7d6e591e70e650e603123d@group.calendar.google.com",
+          "mode": "list",
+          "cachedResultName": "Golden Fork Reservations"
+        },
+        "start": "={{ new Date($json['Date and Time'].replace(' ', 'T') + ':00+08:00').toISOString() }}",
+        "end": "={{ new Date(new Date($json['Date and Time'].replace(' ', 'T') + ':00+08:00').getTime() + 1 * 60 * 60 * 1000).toISOString() }}",
+        "additionalFields": {
+          "attendees": [
+            "={{ $json.Email }}"
+          ],
+          "description": "=Reservation -  {{ $json.Name }} - Guest - {{ $json['No. of Guest'] }}",
+          "maxAttendees": "={{ $json['No. of Guest'] }}",
+          "summary": "=Reservation -  {{ $json.Name }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        2288,
+        -224
+      ],
+      "id": "39588db9-2667-471e-8427-ce16e2d6c777",
+      "name": "create_event",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "z4UpaFuo9enJA8he",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('update_data').item.json.Email }}",
+        "subject": "Your Reservation at The Golden Fork is Confirmed! 🍽️",
+        "message": "=Hi {{ $('update_data').item.json.Name.split(' ')[0] }},  \n\nThank you for choosing The Golden Fork! We're delighted  to confirm your reservation.  \n\nHere are your booking details:    \n📅 Date & Time:      {{ $('update_data').item.json['Date and Time'] }}  \n👥 Party Size:       {{ $('update_data').item.json['No. of Guest'] }} guests   \n📞 Contact Number:   {{ $('update_data').item.json.Phone }} \n🎉 Special Requests: {{ $('update_data').item.json['Special Notes'] }} \n\nWe look forward to welcoming you and providing an  exceptional dining experience.  \n\nShould you need to make any changes or have any  questions, please don't hesitate to reach out.  \n\nWarm regards, The Golden Fork Team\n\n\n───────────────────────────── \n📍 [Restaurant Address] \n📞 [Restaurant Phone] \n🌐 [Restaurant Website] \n─────────────────────────────  \n\n\nPlease note: This is an automated confirmation.  Replies to this email are not monitored.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2512,
+        -224
+      ],
+      "id": "6cb7b84e-0d10-46b7-b6f4-d4d2899e862a",
+      "name": "send_email",
+      "webhookId": "184cbfb3-4607-4e9f-9e6d-a2f755f70ac3",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "EYrXheII3bMJTTDK",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "messages",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "session_id",
+              "fieldValue": "={{ $('set_fields').item.json.session_id }}"
+            },
+            {
+              "fieldId": "role",
+              "fieldValue": "assistant"
+            },
+            {
+              "fieldId": "content",
+              "fieldValue": "={{ $('Edit Fields').item.json.final_reply }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        2752,
+        -96
+      ],
+      "id": "2dec4ab6-6b6a-4419-9f51-776013bff37d",
+      "name": "update_assistant_message",
+      "executeOnce": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "4Q765wSBY6ELqtQC",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "815e59a1-d4be-4b84-ba91-a9de8efbaf87",
+              "name": "output",
+              "value": "={{ $json.content }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2976,
+        -96
+      ],
+      "id": "c236dbdc-0e5a-41c1-a813-26f4bd60e786",
+      "name": "set_fields1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "9c400347-9e94-4b2f-8c3b-aa3068e32538",
+              "leftValue": "={{ $json.body.type }}",
+              "rightValue": "message",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "2a18a23c-ef4c-4610-bdc6-cfd69db03404",
+              "leftValue": "={{ $json.body.message }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -688,
+        -80
+      ],
+      "id": "06ee6b9d-f602-4e6b-b86f-6fa66baea86e",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9f228008-5a88-44db-bc99-b01500f8d8cc",
+              "name": "final_reply",
+              "value": "={{ $json.reply }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1616,
+        -112
+      ],
+      "id": "7d30d043-dafd-479c-bcc4-9da26885f29f",
+      "name": "Edit Fields"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "set_fields",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "create_session_id",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "booking_data_checker",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase Vector Store": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reranker Cohere": {
+      "ai_reranker": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "ai_reranker",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "update_data",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "update_assistant_message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "check_availability": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_sessions": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "create_session_id": {
+      "main": [
+        [
+          {
+            "node": "set_fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "set_fields": {
+      "main": [
+        [
+          {
+            "node": "get_user_message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_user_message": {
+      "main": [
+        [
+          {
+            "node": "compress_message_history",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "compress_message_history": {
+      "main": [
+        [
+          {
+            "node": "create_user_message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "create_user_message": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "booking_data_checker": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "update_data": {
+      "main": [
+        [
+          {
+            "node": "create_event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "create_event": {
+      "main": [
+        [
+          {
+            "node": "send_email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "send_email": {
+      "main": [
+        [
+          {
+            "node": "update_assistant_message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "update_assistant_message": {
+      "main": [
+        [
+          {
+            "node": "set_fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "set_fields1": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "get_sessions",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "timezone": "Asia/Tokyo",
+    "saveExecutionProgress": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false,
+    "timeSavedPerExecution": 0
+  },
+  "versionId": "f576f024-894f-4d66-8eaf-818ecde48974",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0ee61e31976bab960ad9c7520cd8a7607714b99359a41f3052f616685d6a73b2"
+  },
+  "id": "ukgoKHeLA4nnb3xc",
+  "tags": []
+}

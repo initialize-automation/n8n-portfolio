@@ -1,0 +1,263 @@
+{
+  "name": "Tool - Availability Checker",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "jsonExample",
+        "jsonExample": "\n{ \n\"query\": \"2026-06-12 17:00\"\n}"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "d4349440-ed60-4437-bf01-f49fae374fd4",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "5f6693e7-93ce-4e5e-b213-d8115842ccba",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "confirmed",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        608,
+        0
+      ],
+      "id": "5c098407-9d17-4f40-bea6-14ca1c1164a3",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "jsCode": "const query = $input.first().json.query;\n\n// Parse the date/time and treat it as UTC+8 (Philippines)\n// Subtract 8 hours to convert to UTC for Google Calendar\nconst localTime = new Date(query.replace(' ', 'T') + ':00+08:00');\n\n// End time = start + 2 hours\nconst endTime = new Date(localTime.getTime() + 2 * 60 * 60 * 1000);\n\nreturn [{\n  json: {\n    slot_start: localTime.toISOString(),\n    slot_end: endTime.toISOString(),\n    original_query: query\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "87bbb20c-74ec-4e79-a5af-23b549618002",
+      "name": "adjust_time"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "a952185b31cab390c6edc583b42889bc16b08ef35f7d6e591e70e650e603123d@group.calendar.google.com",
+          "mode": "list",
+          "cachedResultName": "Golden Fork Reservations"
+        },
+        "returnAll": true,
+        "timeMin": "={{ $json.slot_start }}",
+        "timeMax": "={{ $json.slot_end }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        400,
+        0
+      ],
+      "id": "82d3d420-e91e-4378-acd6-9666cf3e3e2b",
+      "name": "get_events",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "z4UpaFuo9enJA8he",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "380ae72e-c556-4637-bcca-e020d8b9b574",
+              "name": "result",
+              "value": "available",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        832,
+        80
+      ],
+      "id": "f0d6078b-99d6-45b7-88d2-ffae5d5afe69",
+      "name": "set_fields"
+    },
+    {
+      "parameters": {
+        "jsCode": "const query = $('When Executed by Another Workflow').first().json.query;\n\n// Parse the date/time and treat it as UTC+8 (Philippines)\n// Subtract 8 hours to convert to UTC for Google Calendar\nconst localTime = new Date(query.replace(' ', 'T') + ':00+08:00');\n\n// End time = start + 2 hours\nconst endTime = new Date(localTime.getTime() + 7 * 24  * 60  * 60  * 1000);\n\nreturn [{\n  json: {\n    slot_start: localTime.toISOString(),\n    slot_end: endTime.toISOString(),\n    original_query: query\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        832,
+        -96
+      ],
+      "id": "b67f14a0-02de-4125-be19-265df08de31a",
+      "name": "adjust_time1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const query = $('adjust_time').item.json.original_query;\n\n// All calendar events returned from Google Calendar\nconst events = $input.all();\n\n// Parse requested time as Philippine time\nconst requestedTime = new Date(query.replace(' ', 'T') + ':00+08:00');\n\n// Extract the requested hour and minute\nconst requestedHour = requestedTime.getUTCHours();\nconst requestedMinute = requestedTime.getUTCMinutes();\n\n// Build list of taken time slots from calendar events\nconst takenSlots = events\n  .filter(item => item.json.status === 'confirmed')\n  .map(item => new Date(item.json.start.dateTime).toISOString());\n\nconst suggestions = [];\nlet daysChecked = 0;\n\nwhile (suggestions.length < 3 && daysChecked < 14) {\n  daysChecked++;\n\n  // Build candidate slot (next day, same time, in UTC)\n  const candidate = new Date(requestedTime.getTime() + daysChecked * 24 * 60 * 60 * 1000);\n\n  // Check day of week in Philippine time\n  const dayOfWeek = new Date(candidate.toLocaleString('en-US', { \n    timeZone: 'Asia/Manila' \n  })).getDay(); // 0=Sun, 1=Mon, 2=Tue, 3=Wed, 4=Thu, 5=Fri, 6=Sat\n\n  // Skip weekends\n  if (dayOfWeek === 0 || dayOfWeek === 6) continue;\n\n  // Get the hour in Philippine time\n  const phHour = parseInt(new Date(candidate.toLocaleString('en-US', {\n    timeZone: 'Asia/Manila'\n  })).getHours());\n\n  // Skip outside operating hours (before 10am or after 9pm)\n  if (phHour < 10 || phHour > 21) continue;\n\n  // Check if this slot is taken\n  const isTaken = takenSlots.some(takenSlot => {\n    const diff = Math.abs(new Date(takenSlot) - candidate);\n    return diff < 2 * 60 * 60 * 1000; // within 2 hour window\n  });\n\n  if (isTaken) continue;\n\n  // Format for display\n  const displayDate = candidate.toLocaleString('en-PH', {\n    timeZone: 'Asia/Manila',\n    weekday: 'long',\n    month: 'long',\n    day: 'numeric',\n    hour: '2-digit',\n    minute: '2-digit',\n    hour12: true\n  });\n\n  suggestions.push(displayDate);\n}\n\nreturn [{\n  json: {\n    result: \"taken\",\n    suggestions: suggestions\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1232,
+        -96
+      ],
+      "id": "fd8d0c31-7493-4c7e-b6ce-5b294a0699aa",
+      "name": "check_date_availability"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "a952185b31cab390c6edc583b42889bc16b08ef35f7d6e591e70e650e603123d@group.calendar.google.com",
+          "mode": "list",
+          "cachedResultName": "Golden Fork Reservations"
+        },
+        "returnAll": true,
+        "timeMin": "={{ $json.slot_start }}",
+        "timeMax": "={{ $json.slot_end }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        1024,
+        -96
+      ],
+      "id": "e55e5870-895f-4f45-9554-dc7844a9018b",
+      "name": "get_events1",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "z4UpaFuo9enJA8he",
+          "name": "Google Calendar account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "adjust_time",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "adjust_time1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "set_fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "adjust_time": {
+      "main": [
+        [
+          {
+            "node": "get_events",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_events": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "adjust_time1": {
+      "main": [
+        [
+          {
+            "node": "get_events1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_events1": {
+      "main": [
+        [
+          {
+            "node": "check_date_availability",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "d41e24c6-588a-4214-aee2-65edae7f942b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0ee61e31976bab960ad9c7520cd8a7607714b99359a41f3052f616685d6a73b2"
+  },
+  "id": "5YMIAVO9CCjcn1Px",
+  "tags": []
+}

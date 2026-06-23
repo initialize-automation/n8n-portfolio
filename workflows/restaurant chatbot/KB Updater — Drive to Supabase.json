@@ -1,0 +1,391 @@
+{
+  "name": "KB Updater — Drive to Supabase",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.chunk }}",
+        "options": {
+          "systemMessage": "=You are a knowledge base assistant.\nYou will receive a TEXT CHUNK extracted from a restaurant PDF document.\n\nRead the entire chunk carefully before deciding if it contains useful information.\n\nYour job is to extract Q&A pairs from this chunk.\nIf the chunk contains no useful Q&A information, return an empty array [].\n\nReturn ONLY a JSON array where each item has:\n- \"category\": choose from \"faq\", \"policy\", or \"terms\"\n- \"question\": a clear question derived from the content\n- \"answer\": the corresponding answer\n- \"source_file\": \"{{ $json.source_file }}\"\n\nIMPORTANT RULES:\n- Extract EVERY single Q&A pair. Do not summarize or skip any.\n- Return ALL of them.\n- Return ONLY the raw JSON array.\n- No explanation. No markdown. No code blocks."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        896,
+        -192
+      ],
+      "id": "3af3b2ae-f6fb-48b8-9481-2e39ca29426b",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "tableId": "knowledge_base",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "source_file",
+              "condition": "eq",
+              "keyValue": "={{ $('Code in JavaScript').item.json.source_file }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1744,
+        -272
+      ],
+      "id": "bee4d7d6-479e-4b97-9800-7c5f62fdc65e",
+      "name": "Delete a row",
+      "executeOnce": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "4Q765wSBY6ELqtQC",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "knowledge_base",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "category",
+              "fieldValue": "={{ $('Code in JavaScript').item.json.category }}"
+            },
+            {
+              "fieldId": "question",
+              "fieldValue": "={{ $('Code in JavaScript').item.json.question }}"
+            },
+            {
+              "fieldId": "answer",
+              "fieldValue": "={{ $('Code in JavaScript').item.json.answer }}"
+            },
+            {
+              "fieldId": "source_file",
+              "fieldValue": "={{ $('Code in JavaScript').item.json.source_file }}"
+            },
+            {
+              "fieldId": "embedding",
+              "fieldValue": "={{ $json.embedding.values }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1744,
+        -32
+      ],
+      "id": "f49fcd9c-cbf2-458d-a4c6-436e81b1ae7e",
+      "name": "Create a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "4Q765wSBY6ELqtQC",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "openrouter/free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        896,
+        32
+      ],
+      "id": "c3d70bd6-e922-4421-8e04-bfe7d33f89cb",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "D2THomQgxclcGFlA",
+          "name": "N8N-API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const allRows = [];\n\nfor (const item of $input.all()) {\n  let rawdata = null;\n  \n  // Handle string output (AI returned JSON as text)\n  if (typeof item.json.output === 'string') {\n    try {\n      // Remove markdown code blocks if present\n      const cleaned = item.json.output\n        .replace(/```json/g, '')\n        .replace(/```/g, '')\n        .trim();\n      const parsed = JSON.parse(cleaned);\n      rawdata = Array.isArray(parsed) ? parsed : parsed.rawdata;\n    } catch(e) {\n      // skip this item if parsing fails\n    }\n  } else if (item.json?.output?.rawdata) {\n    rawdata = item.json.output.rawdata;\n  }\n\n  if (Array.isArray(rawdata)) {\n    rawdata.forEach(row => allRows.push({ json: row }));\n  }\n}\n\nreturn allRows;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1248,
+        -192
+      ],
+      "id": "07e1f95d-8b4b-408f-8d12-74bc0469630a",
+      "name": "Code in JavaScript",
+      "executeOnce": false,
+      "notesInFlow": false
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-2:embedContent?key=AIzaSyCLDDdFVQlbp5dRpgLR4r-SZo9CZzHJKrQ",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"content\": {\n    \"parts\": [{ \"text\": \"{{ $json.question }} {{ $json.answer }}\" }]\n  },\n  \"outputDimensionality\": 3072\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1472,
+        -192
+      ],
+      "id": "e0d12f84-cd03-4eb5-86c2-a80dffce655c",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "value": "1UWOZ-D6RQ3qifHrIjnkON9690Mbb8hvB",
+          "mode": "list",
+          "cachedResultName": "restaurant-bot-knowledge-base",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1UWOZ-D6RQ3qifHrIjnkON9690Mbb8hvB"
+        },
+        "event": "fileCreated",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "typeVersion": 1,
+      "position": [
+        -208,
+        -192
+      ],
+      "id": "6e70f2c2-c5fc-4973-b3b8-d6525a19ecf1",
+      "name": "upload_trigger",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "dmcr3hOnnCjdIsgE",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9c2580cd-cfb9-49b4-ad9b-f7c3063eb9de",
+              "name": "file_id",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        16,
+        -192
+      ],
+      "id": "41aa3a4e-97a6-4503-b427-d469990b07e9",
+      "name": "set_fields"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.file_id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        240,
+        -192
+      ],
+      "id": "9804cf80-d0cc-4d94-aede-54ab09b64e37",
+      "name": "download_file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "dmcr3hOnnCjdIsgE",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        464,
+        -192
+      ],
+      "id": "c8095caf-f7e9-4b03-9ecd-5e0829ecb35d",
+      "name": "pdf_to_text"
+    },
+    {
+      "parameters": {
+        "jsCode": "const allRows = [];\n\nfor (const item of $input.all()) {\nconst text = item.json.text;\nconst fileName = item.json.info.Title;\nconst chunkSize = 50; // words per chunk\n\n// Split text into words\nconst words = text.split(/\\s+/);\nconst chunks = [];\n\n// Group words into chunks\nfor (let i = 0; i < words.length; i += chunkSize) {\n  const chunk = words.slice(i, i + chunkSize).join(' ');\n  chunks.push({\n    json: {\n      chunk: chunk,\n      source_file: fileName,\n      chunk_index: Math.floor(i / chunkSize) + 1\n    }\n  });\n}\n\n  allRows.push(...chunks);\n}\n\nreturn allRows;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        -192
+      ],
+      "id": "0d9ac011-5acc-4af5-b397-6a91e66a1de7",
+      "name": "text_chunk"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete a row": {
+      "main": [
+        []
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Delete a row",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Create a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "upload_trigger": {
+      "main": [
+        [
+          {
+            "node": "set_fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "set_fields": {
+      "main": [
+        [
+          {
+            "node": "download_file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "download_file": {
+      "main": [
+        [
+          {
+            "node": "pdf_to_text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "pdf_to_text": {
+      "main": [
+        [
+          {
+            "node": "text_chunk",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "text_chunk": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "f834d712-08ff-45d0-a586-a1d8d9ef03ea",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0ee61e31976bab960ad9c7520cd8a7607714b99359a41f3052f616685d6a73b2"
+  },
+  "id": "nwIR8RztDTunaUP5",
+  "tags": []
+}
