@@ -23,7 +23,8 @@ Keeps the chatbot's source of truth current with zero manual data entry:
 - Generates embeddings via the **Google Generative Language API**.
 - Deletes any existing rows tied to that `source_file`, then writes the new structured + embedded rows to **Supabase** — so re-uploading a file refreshes the knowledge base instead of duplicating entries.
 
-> *Screenshot: Knowledge Base Updater workflow*
+> <img width="2342" height="888" alt="image" src="https://github.com/user-attachments/assets/323c6b8a-529e-4708-a972-a31099eefb6d" />
+
 
 ### 💬 Booking Chatbot
 
@@ -38,7 +39,8 @@ The customer-facing agent, triggered by a webhook from a chat widget:
 - Steers the conversation naturally toward booking a reservation rather than just answering questions.
 - Once all booking details are collected, it appends the booking to a **Google Sheet**, creates a **Google Calendar** event, and sends a confirmation email — then responds back to the widget.
 
-> *Screenshot: Booking Chatbot workflow*
+> <img width="2328" height="693" alt="image" src="https://github.com/user-attachments/assets/24d70d69-524c-494d-bc04-de3d9778d3c2" />
+
 
 ### 📅 Check Availability (tool sub-workflow)
 
@@ -48,7 +50,8 @@ Called by the Booking Chatbot's AI Agent whenever a customer requests a date or 
 - Branches depending on whether a conflict exists, checking an adjusted time range if needed.
 - Returns the available slot back to the agent to relay to the customer.
 
-> *Screenshot: Check Availability sub-workflow*
+> <img width="2334" height="818" alt="image" src="https://github.com/user-attachments/assets/685c8a2b-a3c0-45bf-a507-568f8deb12f4" />
+
 
 ## The Result
 
