@@ -51,6 +51,7 @@ A Supervisor Agent built in n8n that orchestrates three sub-agents and a Google 
 ## Tech Stack
 
 | Tool | Role |
+|---|---|
 | **n8n** | Workflow orchestration |
 | **AI Agent (LLM)** | Task interpretation, routing, and decision-making |
 | **Google Sheets** | Data storage and lookup |
