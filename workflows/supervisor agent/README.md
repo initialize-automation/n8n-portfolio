@@ -39,7 +39,8 @@ A Supervisor Agent built in n8n that orchestrates three sub-agents and a Google 
 - Runs web searches via SerpAPI and Wikipedia.
 - Returns summarized, structured results instead of raw search output.
 
-<img width="1208" height="675" alt="Research Agent sub-workflow in n8n" src="https://github.com/user-attachments/assets/adc3982-5d11-4c76-9d7d-17e7f433b86d" />
+<img width="1188" height="750" alt="image" src="https://github.com/user-attachments/assets/f9e81f57-91ec-484f-a508-efa94b0adab2" />
+
 
 ## The Result
 
