@@ -40,6 +40,7 @@ An n8n workflow that meets the user where they already are — Telegram:
 ## Tech Stack
 
 | Tool | Role |
+|---|---|
 | **n8n** | Workflow orchestration and automation |
 | **Telegram Bot** | User interaction and message handling |
 | **Gemini AI** | Chat model, image analysis, and audio analysis |
