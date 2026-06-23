@@ -1,0 +1,366 @@
+{
+  "name": "Gmail Classifier with Telegram Notification",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        48
+      ],
+      "id": "7fc6756f-f479-42d5-9a40-784c4e36d1a9",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "EYrXheII3bMJTTDK",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Subject: {{ $json.Subject }}\nFrom: {{ $json.From }}\nMessage: {{ $json.snippet }}",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=You are an email categorization assistant for an Australian \nroofing company. \n\nRead the email and respond with ONLY two of these exact words:\n- new_lead , 🔔\n- supplier, 🔔\n- internal, 🔔\n- customer_service, 🚨\n\nDo not explain. Do not add punctuation. Just the category word."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        224,
+        48
+      ],
+      "id": "1c056eed-054d-441f-a5bf-d749fd8d5549",
+      "name": "Basic LLM Chain",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        224,
+        256
+      ],
+      "id": "ea1545ea-d80e-41d2-b17b-539b9b601388",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "Xoj3zgnZWzuEkp9S",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"classify\" : \"\",\n    \"urgency\" : \"\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        368,
+        256
+      ],
+      "id": "e27a8994-f742-4a1f-a4b4-7fec44b75b43",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "resource": "label"
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        576,
+        48
+      ],
+      "id": "5540159b-85d1-4f53-84a1-1265fdbcd004",
+      "name": "Get many labels",
+      "webhookId": "b577c1ea-4587-49aa-940c-cb57711a90bc",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "EYrXheII3bMJTTDK",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const targetName =  $('Basic LLM Chain').first().json.output.classify;\n\nconst items = $input.all();\n\n// .find() returns the matching item, or undefined if not found\nconst foundItem = items.find(item => item.json.name === targetName);\n\n// If foundItem exists, nameExists = true, otherwise false\nreturn [{\n  json: {\n    nameExists: foundItem !== undefined,\n    id: foundItem ? foundItem.json.id : null,\n    classify: targetName\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        800,
+        48
+      ],
+      "id": "eea5dc92-4a88-4189-80ef-a32e1593cdfc",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "a67c7e2e-876b-495b-bcfb-c71bea7f6a4d",
+              "leftValue": "={{ $json.nameExists }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1024,
+        48
+      ],
+      "id": "75a3dc6d-1f74-4d75-b9d6-acaecfd12d07",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "resource": "label",
+        "operation": "create",
+        "name": "={{ $('Code in JavaScript').item.json.classify }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1248,
+        128
+      ],
+      "id": "23a8f70a-5467-45ee-9bf5-49973ed1da65",
+      "name": "Create a label",
+      "webhookId": "673c5e58-2d23-4504-a1db-c6f294a4c74c",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "EYrXheII3bMJTTDK",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1472,
+        48
+      ],
+      "id": "659d6451-06a6-4525-a211-8b39106df4f3",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "labelIds": "={{ $json.id }}"
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1696,
+        48
+      ],
+      "id": "ef8031f3-0583-4597-8a2b-04448742b9fa",
+      "name": "Add label to message",
+      "webhookId": "17601c3e-9b18-43fc-a26d-32be5efe6597",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "EYrXheII3bMJTTDK",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "5225131100",
+        "text": "={{ $('Basic LLM Chain').item.json.output.urgency }} New Lead\nFrom: {{ $('Gmail Trigger').item.json.From }}\nSubject: {{ $('Gmail Trigger').item.json.Subject }}\nPreview: {{ $('Gmail Trigger').item.json.snippet }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1904,
+        48
+      ],
+      "id": "1ec850c8-0221-4b1d-873b-173e8d18dc47",
+      "name": "Send a text message",
+      "webhookId": "1a9445d2-b241-492e-85e1-7c422c5ee725",
+      "credentials": {
+        "telegramApi": {
+          "id": "HtPg9TBZUxNYMBBS",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Get many labels",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many labels": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create a label",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a label": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Add label to message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add label to message": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "22e7a13b-5e3f-45a9-84b6-7fe92c66ceb6",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0ee61e31976bab960ad9c7520cd8a7607714b99359a41f3052f616685d6a73b2"
+  },
+  "id": "M9K81gw5ec7PiVII",
+  "tags": []
+}
