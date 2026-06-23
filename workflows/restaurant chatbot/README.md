@@ -102,10 +102,6 @@ Requested Date → Adjust Time → Get Calendar Events
 5. Set the Check Availability workflow as a tool inside the Booking Chatbot's AI Agent node.
 6. Embed your chat widget on your site and point it at the Booking Chatbot's webhook URL.
 
-## Screenshots
-
-> *Add the three workflow canvas screenshots here once uploaded to the repo.*
-
 ---
 
 ### About this project
