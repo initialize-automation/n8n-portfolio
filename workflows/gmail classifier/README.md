@@ -28,6 +28,7 @@ An n8n workflow that replaces keyword filters with AI-driven classification:
 ## Tech Stack
 
 | Tool | Role |
+|---|---|
 | **n8n** | Workflow orchestration and scheduling |
 | **Gmail** | Email source and labeling |
 | **Gemini AI** | Email classification (chat model + classifier) |
