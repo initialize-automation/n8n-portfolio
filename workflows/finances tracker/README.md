@@ -1,4 +1,4 @@
- 📊 Finances Tracker — AI Expense Logging via Telegram
+# 📊 Finances Tracker — AI Expense Logging via Telegram
 
 Send a text, photo, or voice note to a Telegram bot and get your spending analyzed, classified, and summarized — no spreadsheet, no manual entry.
 
