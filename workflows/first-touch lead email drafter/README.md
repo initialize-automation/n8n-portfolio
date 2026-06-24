@@ -2,8 +2,6 @@
 
 The moment a GoHighLevel form is submitted — new lead, booked consultation, or booked service — this drafts and sends a personalized first-touch email, then flags the team to follow up.
 
-<img width="2280" height="811" alt="image" src="https://github.com/user-attachments/assets/23365f1f-d53d-4069-aeed-4c6c3548b040" />
-
 ## Overview
 
 A single n8n workflow triggered directly from GoHighLevel form submissions. It logs the contact, routes them by stage, drafts a tailored opening email with AI, sends it, and notifies the team in Slack.
@@ -56,6 +54,11 @@ GHL Form Submission → Lookup/Update Contact in Sheet
 5. Connect a **Gmail** credential for sending and a **Slack** credential for the team notification.
 
 ---
+
+## Screenshots
+
+> <img width="2280" height="811" alt="image" src="https://github.com/user-attachments/assets/23365f1f-d53d-4069-aeed-4c6c3548b040" />
+
 
 ### About this project
 
