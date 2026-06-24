@@ -2,8 +2,6 @@
 
 When a GoHighLevel contact requests a quote, this drafts a priced quotation document automatically and routes it through a one-line Telegram approval before it ever reaches the client.
 
-<img width="2289" height="752" alt="image" src="https://github.com/user-attachments/assets/7ebb4869-1a8c-4348-a56e-7983aa648b57" />
-
 ## Overview
 
 Two connected n8n workflows handle the full loop: **Quotation Generator**, which fires the moment a contact is tagged in GoHighLevel, and **Approval & Delivery**, which fires when the team replies in Telegram to approve or reject the draft.
@@ -77,6 +75,11 @@ Telegram Reply ("status docId") → Parse Reply → Status check
 6. Connect a **Gmail** credential for sending the final quotation.
 
 ---
+
+## Screenshots
+
+> <img width="2289" height="752" alt="image" src="https://github.com/user-attachments/assets/7ebb4869-1a8c-4348-a56e-7983aa648b57" />
+
 
 ### About this project
 
