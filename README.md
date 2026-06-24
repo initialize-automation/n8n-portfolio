@@ -1,4 +1,4 @@
-# ⚙️ N8N Portfolio
+# ⚙️ Automation Portfolio
 
 Hi, I’m **Jayson** an aspiring AI automation specialist passionate about building practical automations using **n8n, AI agents, and open-source tools**.    
 
@@ -17,4 +17,6 @@ This portfolio documents my journey from beginner workflows to advanced automati
 - **Gemini AI**  
 - **Google Workspace** (Google Sheets, Google Drive, Gmail, Google Calendar)  
 - **APIs & Webhooks**  
-- **Telegram Bot**  
+- **Telegram Bot**
+- **GoHighLevel**
+- **Slack**
