@@ -6,8 +6,6 @@ One AI agent that delegates to three specialists — email, calendar, and resear
 
 The Supervisor Agent is the central controller in a multi-agent n8n workflow. It receives a request via Telegram (voice or text), decides which specialized agent should handle it, and routes the task accordingly. Each sub-agent works in its own domain and reports back to the Supervisor, which merges the results into one response for the user.
 
-<img width="2077" height="925" alt="Supervisor Agent workflow overview in n8n" src="https://github.com/user-attachments/assets/3cc45a13-1dda-475d-86c1-3eb2ed6dca54" />
-
 ## The Problem
 
 Most "AI agent" demos handle one task in isolation — send an email, check a calendar, or search the web. A real assistant needs to triage incoming requests and route them to the right tool, without the user needing to know or care which backend handled it.
@@ -69,6 +67,10 @@ A Supervisor Agent built in n8n that orchestrates three sub-agents and a Google 
 5. Activate the workflow and message your Telegram bot to test routing.
 
 ---
+
+## Screenshots
+
+> <img width="2077" height="925" alt="Supervisor Agent workflow overview in n8n" src="https://github.com/user-attachments/assets/3cc45a13-1dda-475d-86c1-3eb2ed6dca54" />
 
 ### About this project
 
