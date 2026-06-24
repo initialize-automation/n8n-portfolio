@@ -6,8 +6,6 @@ Send a text, photo, or voice note to a Telegram bot and get your spending analyz
 
 The Finances Tracker turns Telegram into a finance-logging interface. Send a message in any format — typed, a photo of a receipt, or a voice note — and an AI agent reads it, classifies the expense, and replies in the same chat with a summary.
 
-<img width="2130" height="995" alt="image" src="https://github.com/user-attachments/assets/2f590ffe-e1f7-4ef0-99bc-0855fbdb8a54" />
-
 ## The Problem
 
 Manual expense tracking dies the moment it requires opening an app or a spreadsheet after every purchase. Most people abandon it within a week because logging a transaction is more friction than it's worth.
@@ -53,6 +51,11 @@ An n8n workflow that meets the user where they already are — Telegram:
 4. Activate the workflow and message your bot with text, a photo, or a voice note to test.
 
 ---
+
+## Screenshots
+
+> <img width="2130" height="995" alt="image" src="https://github.com/user-attachments/assets/2f590ffe-e1f7-4ef0-99bc-0855fbdb8a54" />
+
 
 ### About this project
 
