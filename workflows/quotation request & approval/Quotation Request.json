@@ -1,0 +1,969 @@
+{
+  "name": "Quotation Request",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Consultaion Notes: {{ $json.Consultation_notes }}",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=You are a data extraction assistant for 2G Cleaning Services.\n\nExtract the following information from the consultation notes:\n- Number of bedrooms (integer)\n- Number of bathrooms (integer)\n- List of additional services requested (array of strings)\n\nWhen identifying additional services, ONLY use these exact service names from our pricing list:\n- Garage cleaning\n- Lawn mowing\n- Laundry\n- Dishwashing\n- Window cleaning\n\nIf a specific price is mentioned for an additional service, include it in customPrice.\nIf no custom price is mentioned, set customPrice to null.\nIf an additional service is not in the list above, use the name exactly as mentioned.\n\nReturn ONLY a valid JSON object in this exact format, no explanation, no markdown:\n\n{\n  \"bedrooms\": 0,\n  \"bathrooms\": 0,\n  \"additionals\": \n  [\n    { \n      \"service\": \"\", \n      \"customPrice\": null \n    }\n  ]\n}"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        144,
+        400
+      ],
+      "id": "19eec063-71fb-42ab-816c-95b9baa4e8f7",
+      "name": "Basic LLM Chain",
+      "retryOnFail": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"bedrooms\": 0,\n  \"bathrooms\": 0,\n  \"additionals\": \n  [\n    { \n      \"service\": \"\", \n      \"customPrice\": null \n    }\n  ]\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        288,
+        624
+      ],
+      "id": "8485c306-2d9e-4dd9-9504-3cfdfffd6359",
+      "name": "Structured Output Parser",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get data from previous nodes\nconst aiRaw = $('Basic LLM Chain').first().json.output;\nconst sheetRows = $input.all();\nconst service = $('Webhook').first().json.body.Service;\n\n// Parse AI output if it's a string\nconst aiOutput = typeof aiRaw === 'string'\n  ? JSON.parse(aiRaw)\n  : aiRaw;\n\n// Extract values safely\nconst bedrooms = Number(aiOutput.bedrooms || 1);\nconst bathrooms = Number(aiOutput.bathrooms || 1);\nconst additionals = aiOutput.additionals || [];\n\n// Find base pricing row matching service type\nconst baseRow = sheetRows.find(row =>\n  row.json.Type === 'Base'&& row.json.Service.toLowerCase() === service.toLowerCase()\n);\n\nif (!baseRow) {\n  throw new Error(`No base pricing found for service: ${service}`);\n}\n\n// Base pricing values\nconst basePrice = Number(baseRow.json['Base Price'] || 0);\nconst perBedroom = Number(baseRow.json['Per Extra Bedroom'] || 0);\nconst perBathroom = Number(baseRow.json['Per Extra Bathroom'] || 0);\n\n// Calculate extra bedrooms and bathrooms\nconst extraBedrooms = Math.max(0, bedrooms - 1);\nconst extraBathrooms = Math.max(0, bathrooms - 1);\n\nconst bedroomTotal = extraBedrooms * perBedroom;\nconst bathroomTotal = extraBathrooms * perBathroom;\n\n// Calculate additional services\nlet additionalTotal = 0;\nconst additionalBreakdown = [];\n\nfor (const item of additionals) {\n\n  let price = item.customPrice === 'null' || item.customPrice === null ? null : Number(item.customPrice);\n\n\n  // If no custom price, look up from Google Sheets\n  if (price == null) {\n\n    const sheetRow = sheetRows.find(row =>\n      row.json.Type === 'Additional' &&\n      row.json.Service?.toLowerCase() === item.service?.toLowerCase()\n    );\n\n    price = sheetRow\n      ? Number(sheetRow.json['Base Price'] || 0)\n      : null;\n  }\n\n  // Manual pricing fallback\n  if (price == null) {\n\n    additionalBreakdown.push({\n      service: item.service,\n      price: 'MANUAL PRICING NEEDED'\n    });\n\n  } else {\n\n    additionalTotal += Number(price);\n\n    additionalBreakdown.push({\n      service: item.service,\n      price: Number(price)\n    });\n  }\n}\n\n\n\n// Final total\nconst totalPrice =\n  basePrice +\n  bedroomTotal +\n  bathroomTotal +\n  additionalTotal;\n\n\nconst additionalLines = additionalBreakdown\n  .map(item => \n    item.price === 'MANUAL PRICING NEEDED' \n      ? `${item.service} - MANUAL PRICING NEEDED`\n      : `${item.service} - ₱${item.price}`\n  )\n  .join('\\n');\n\n// Return result\nreturn [\n  {\n    json: {\n      service,\n      bedrooms,\n      bathrooms,\n      perBedroom,\n      perBathroom,\n      basePrice,\n      extraBedrooms,\n      bedroomTotal,\n      extraBathrooms,\n      bathroomTotal,\n      additionalBreakdown,\n      additionalTotal,\n      totalPrice,\n      additionalLines,\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        720,
+        512
+      ],
+      "id": "9dfeefc0-a582-48ae-85d8-cb75161d976a",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "operation": "copy",
+        "fileId": {
+          "__rl": true,
+          "value": "1WWckIn-uIqTAxmw4xURQuQG7SiAeKa1WLf3AgMX-gQ8",
+          "mode": "list",
+          "cachedResultName": "2G Quotation Draft",
+          "cachedResultUrl": "https://docs.google.com/document/d/1WWckIn-uIqTAxmw4xURQuQG7SiAeKa1WLf3AgMX-gQ8/edit?usp=drivesdk"
+        },
+        "name": "=2G-{{new Date().getFullYear()}}-00{{ $json.count }} - Quotation\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1392,
+        512
+      ],
+      "id": "2e32d5bb-eac1-4018-b051-fe64ff37faf4",
+      "name": "Copy file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "dmcr3hOnnCjdIsgE",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentURL": "={{ $json.id }}",
+        "actionsUi": {
+          "actionFields": [
+            {
+              "action": "replaceAll",
+              "text": "{{clientName}}",
+              "replaceText": "={{ $('Edit Fields').item.json.Full_name }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{clientPhone}}",
+              "replaceText": "={{ $('Edit Fields').item.json.Phone }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{clientEmail}}",
+              "replaceText": "={{ $('Edit Fields').item.json.Email }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{serviceAddress}}",
+              "replaceText": "={{ $('Edit Fields').item.json.Address }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{serviceType}}",
+              "replaceText": "={{ $('Edit Fields').item.json.Service }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{basePrice}}",
+              "replaceText": "={{ String($('Code in JavaScript').item.json.basePrice)}}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{extraBedrooms}}",
+              "replaceText": "={{ String ($('Code in JavaScript').item.json.extraBedrooms )}}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{perBedroom}}",
+              "replaceText": "={{ String($('Code in JavaScript').item.json.perBedroom) }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{bedroomTotal}}",
+              "replaceText": "={{ String($('Code in JavaScript').item.json.bedroomTotal) }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{extraBathrooms}}",
+              "replaceText": "={{String( $('Code in JavaScript').item.json.extraBathrooms) }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{perBathroom}}",
+              "replaceText": "={{String( $('Code in JavaScript').item.json.perBathroom) }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{bathroomTotal}}",
+              "replaceText": "={{ String($('Code in JavaScript').item.json.bathroomTotal) }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{additionalTotal}}",
+              "replaceText": "={{ String($('Code in JavaScript').item.json.additionalTotal) }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{totalPrice}}",
+              "replaceText": "={{ String($('Code in JavaScript').item.json.totalPrice) }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{staffName}}",
+              "replaceText": "={{ $('Edit Fields').item.json.Staff_name }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{quoteNumber}}",
+              "replaceText": "={{ $json.name.replace(' - Quotation', '') }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{date}}",
+              "replaceText": "={{ $now.toFormat('dd/MM/yyyy') }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{additionalServices}}",
+              "replaceText": "={{ $('Code in JavaScript').item.json.additionalLines }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        1616,
+        512
+      ],
+      "id": "4660ce5d-f5a4-415a-9cad-55c8dce174ac",
+      "name": "Update a document",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "kV6zS1Xr4q1jUDQR",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.Email }}",
+        "subject": "={{ $json.Service }} 2G Cleaning Quotation",
+        "message": "=Hi, Thank you for waiting this is your quotation for {{ $json.Service }} Service, Note that the ",
+        "options": {
+          "attachmentsUi": {
+            "attachmentsBinary": [
+              {}
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1040,
+        832
+      ],
+      "id": "22b48c51-6cc7-417b-8043-ea52e7023ac1",
+      "name": "Send a message",
+      "webhookId": "838c98f2-bba0-47e5-b2e9-441e2ed66731",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "EYrXheII3bMJTTDK",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "=5225131100",
+        "text": "=<b>New Quote for Approval</b>\n\nClient: <b>Jayson Clyde Cañete</b>\nDocument ID: `{{ $json.DocsID }}`\n\nReply <b>Approve</b> followed by the document ID to proceed.\n\n<b>NOTE:</b> If you see MANUAL PRICING NEEDED please update prices before approving.\n\n<b>NOTE:</b> Reply using only this format \"Status + space + docs Id\". For example:\nApprove 1Ivu7CUGO_nrIv9B4YgoDhr-gwJ0i8VFp4G_VTLQSNIo",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2064,
+        512
+      ],
+      "id": "1264cb09-09f0-4762-9696-df0ab284eee5",
+      "name": "Send a text message",
+      "webhookId": "8a2b143c-fd32-48b4-a151-2387134d2aed",
+      "credentials": {
+        "telegramApi": {
+          "id": "HtPg9TBZUxNYMBBS",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\n// Check if input is empty / \"no items sent on this branch\"\nif (!items || items.length === 0) {\n  return [{ json: { count: items.length } }]; // or however you want to return nil\n}\n\nconst count = items.length; // or whatever your count logic is\n\nreturn [{ json: { count: count + 1 } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1168,
+        512
+      ],
+      "id": "f1775aea-8302-44ad-99a5-c51f804c480b",
+      "name": "Code in JavaScript2"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1ulLDOPBhzgf11UqX7CA-QxW0NqwhcgvOaLubQuw-mGg",
+          "mode": "list",
+          "cachedResultName": "Quotation DB",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ulLDOPBhzgf11UqX7CA-QxW0NqwhcgvOaLubQuw-mGg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Quotation DB",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ulLDOPBhzgf11UqX7CA-QxW0NqwhcgvOaLubQuw-mGg/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "QuoteNumber": "={{ $('Copy file').item.json.name.replace(' - Quotation', '') }}",
+            "StaffName": "={{ $('Webhook').item.json.body.user.firstName }} {{ $('Webhook').item.json.body.user.lastName }}",
+            "Client": "={{ $('Webhook').item.json.body.full_name }}",
+            "Status": "For Approval",
+            "DocsID": "={{ $json.documentId }}",
+            "Service": "={{ $('Webhook').item.json.body.Service }}",
+            "Email": "={{ $('Webhook').item.json.body.email }}",
+            "ContactId": "={{ $('Edit Fields').item.json.Contact_id }}"
+          },
+          "matchingColumns": [
+            "QuoteNumber"
+          ],
+          "schema": [
+            {
+              "id": "QuoteNumber",
+              "displayName": "QuoteNumber",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "StaffName",
+              "displayName": "StaffName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ContactId",
+              "displayName": "ContactId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Client",
+              "displayName": "Client",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "DocsID",
+              "displayName": "DocsID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Service",
+              "displayName": "Service",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1840,
+        512
+      ],
+      "id": "3d4657a6-6940-4120-b6f5-63259021d132",
+      "name": "Append or update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "WGqxK5llQ7uxMFPc",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        160,
+        624
+      ],
+      "id": "692f2b06-f690-4ca3-9be9-1be75aa9f433",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "Xoj3zgnZWzuEkp9S",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -304,
+        832
+      ],
+      "id": "89711395-773c-428d-94ce-76bb531cc9f8",
+      "name": "Telegram Trigger",
+      "webhookId": "588b09a2-2136-470a-9d5a-77cd3f114512",
+      "credentials": {
+        "telegramApi": {
+          "id": "HtPg9TBZUxNYMBBS",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const message = $input.first().json.message.text;\nconst parts = message.split(' ');\n\nreturn [{\n  json: {\n    status: parts[0],  // \"Approve\"\n    docsId: parts[1]   // \"1Ivu7CUGO...\"\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -80,
+        832
+      ],
+      "id": "c9b05b3c-44a3-4e93-ae89-2bbe1c8900f2",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "9b3a8714-1526-4497-a687-8e6c457d0d4b",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "Approve",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        144,
+        832
+      ],
+      "id": "638e92da-7008-4453-9e16-c383d891c3e0",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $('If').item.json.docsId }}",
+          "mode": "id"
+        },
+        "options": {
+          "googleFileConversion": {
+            "conversion": {
+              "docsToFormat": "application/pdf"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        816,
+        832
+      ],
+      "id": "b7426106-9192-4cd7-af97-4802ac2cb69b",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "dmcr3hOnnCjdIsgE",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nconst items = $input.all();\nconst docsId = $('Code in JavaScript1').first().json.docsId; \n\nconst foundItem = items.find(item => item.json.DocsID === docsId );\n\nreturn [{\n  json: {\n    nameExists: foundItem !== undefined,\n    Email: foundItem ? foundItem.json.Email : null,\n    Service: foundItem ? foundItem.json.Service : null,\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        592,
+        832
+      ],
+      "id": "231d60a2-62d7-46cf-8be4-c661dcf60a49",
+      "name": "Code in JavaScript3"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "18WrxegWN_7Ht5Srk7wKFPIDPF8s-jUF2edNBjZ7E6ko",
+          "mode": "list",
+          "cachedResultName": "Databes 2g Cleaning Service",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/18WrxegWN_7Ht5Srk7wKFPIDPF8s-jUF2edNBjZ7E6ko/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 756486086,
+          "mode": "list",
+          "cachedResultName": "Pricing",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/18WrxegWN_7Ht5Srk7wKFPIDPF8s-jUF2edNBjZ7E6ko/edit#gid=756486086"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        496,
+        512
+      ],
+      "id": "06bd1b04-f968-46ef-b477-6803a17a3207",
+      "name": "Get Pricing Table",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "WGqxK5llQ7uxMFPc",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1ulLDOPBhzgf11UqX7CA-QxW0NqwhcgvOaLubQuw-mGg",
+          "mode": "list",
+          "cachedResultName": "Quotation DB",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ulLDOPBhzgf11UqX7CA-QxW0NqwhcgvOaLubQuw-mGg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Quotation DB",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ulLDOPBhzgf11UqX7CA-QxW0NqwhcgvOaLubQuw-mGg/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        944,
+        512
+      ],
+      "id": "87d1014d-34e3-45f4-b226-087172950623",
+      "name": "Count list of quotation",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "WGqxK5llQ7uxMFPc",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1ulLDOPBhzgf11UqX7CA-QxW0NqwhcgvOaLubQuw-mGg",
+          "mode": "list",
+          "cachedResultName": "Quotation DB",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ulLDOPBhzgf11UqX7CA-QxW0NqwhcgvOaLubQuw-mGg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Quotation DB",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ulLDOPBhzgf11UqX7CA-QxW0NqwhcgvOaLubQuw-mGg/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        368,
+        832
+      ],
+      "id": "918c32e3-a03a-4fd6-8b39-381b142d7af1",
+      "name": "Get client data",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "WGqxK5llQ7uxMFPc",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "80b16cbd-2d9e-4bb1-96e2-c2f28f9e8197",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -304,
+        512
+      ],
+      "id": "244682ec-d310-46a2-83db-724607b533ba",
+      "name": "Webhook",
+      "webhookId": "80b16cbd-2d9e-4bb1-96e2-c2f28f9e8197"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9b4b1cfc-5b05-4939-9295-e300ab7c41d3",
+              "name": "Contact_id",
+              "value": "={{ $json.body.contact_id }}",
+              "type": "string"
+            },
+            {
+              "id": "3783f887-bb2c-4404-91f9-58fb72a3287d",
+              "name": "Service",
+              "value": "={{ $json.body.Service }}",
+              "type": "string"
+            },
+            {
+              "id": "9a5543f8-110e-46de-93aa-93c7e96732cc",
+              "name": "Consultation_notes",
+              "value": "={{ $json.body['Consultation Notes'] }}",
+              "type": "string"
+            },
+            {
+              "id": "afe2249c-3071-4f42-85c1-cbfa9223c6b9",
+              "name": "First_name",
+              "value": "={{ $json.body.first_name }}",
+              "type": "string"
+            },
+            {
+              "id": "f6c88e23-d9f4-4497-bfb3-d5027e7e5cb0",
+              "name": "Last_name",
+              "value": "={{ $json.body.last_name }}",
+              "type": "string"
+            },
+            {
+              "id": "d2488c6d-dfaa-4521-bd69-f9b265a19898",
+              "name": "Full_name",
+              "value": "={{ $json.body.full_name }}",
+              "type": "string"
+            },
+            {
+              "id": "92b55d13-0e0b-4c59-adb5-b97d9a8479be",
+              "name": "Email",
+              "value": "={{ $json.body.email }}",
+              "type": "string"
+            },
+            {
+              "id": "f9cf1d36-1e96-46c9-8dee-613fe020df3a",
+              "name": "Phone",
+              "value": "={{ $json.body.phone }}",
+              "type": "string"
+            },
+            {
+              "id": "9b380db1-98cc-41e9-a96c-24f04f86568e",
+              "name": "Address",
+              "value": "={{ $json.body.full_address }}",
+              "type": "string"
+            },
+            {
+              "id": "395e2679-b1d0-42fa-89a9-a1fb949d1bf2",
+              "name": "Staff_name",
+              "value": "={{ $json.body.user.firstName }} {{ $json.body.user.lastName }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -80,
+        512
+      ],
+      "id": "a39f7310-37bf-4480-b0c7-bc2d3c632f21",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "chatId": "=5225131100",
+        "text": "=Quotation Sent, \n\nClient Name: ",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1264,
+        832
+      ],
+      "id": "696ddd22-0962-4bec-8a26-28d471ace28b",
+      "name": "Send a text message1",
+      "webhookId": "8a2b143c-fd32-48b4-a151-2387134d2aed",
+      "credentials": {
+        "telegramApi": {
+          "id": "HtPg9TBZUxNYMBBS",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Get Pricing Table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Count list of quotation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Copy file": {
+      "main": [
+        [
+          {
+            "node": "Update a document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a document": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message": {
+      "main": [
+        []
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "Copy file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append or update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Get client data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript3": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Pricing Table": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Count list of quotation": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get client data": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "9f4ecb02-74f0-4607-bf4a-a2e99ea604cd",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0ee61e31976bab960ad9c7520cd8a7607714b99359a41f3052f616685d6a73b2"
+  },
+  "id": "w899vBy0QG3oPadH",
+  "tags": []
+}

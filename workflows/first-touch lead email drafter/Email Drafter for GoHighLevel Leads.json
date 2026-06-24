@@ -1,0 +1,830 @@
+{
+  "name": "Email Drafter for GoHighLevel Leads",
+  "nodes": [
+    {
+      "parameters": {
+        "jsCode": "const contact = $input.first().json;\n\nreturn {\n  body: contact.body,\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        -192
+      ],
+      "id": "dd091a89-6fec-4059-9bbd-d19861280d59",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash-lite",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1584,
+        32
+      ],
+      "id": "cb161293-fd7e-43c2-8b31-90e1bc60ada2",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "Xoj3zgnZWzuEkp9S",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"Subject\": \"\",\n\t\"Body\": \"\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1712,
+        32
+      ],
+      "id": "cb0ec607-e5f6-4999-8868-d7c93b05d5ff",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Code in JavaScript').item.json.body.email }}",
+        "subject": "={{ $json.output.Subject }}",
+        "message": "={{ $json.output.Body }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1920,
+        -192
+      ],
+      "id": "c027a5dd-6db6-4cbc-b0c7-4aa57cfddef2",
+      "name": "Send a message",
+      "webhookId": "0dc67092-00e2-44be-ba28-085732e125be",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "EYrXheII3bMJTTDK",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "218099a5-f4fb-49cd-9fd5-cc3fff1b2cb2",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        -192
+      ],
+      "id": "c0936d74-c65d-4618-979f-0cf786a1870b",
+      "name": "HIghLevel Trigger (Form Submitted)",
+      "webhookId": "218099a5-f4fb-49cd-9fd5-cc3fff1b2cb2"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.prompt }}",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1568,
+        -192
+      ],
+      "id": "fc89931e-ebd5-4b43-91c2-63c90626cd64",
+      "name": "Draft email Creation",
+      "retryOnFail": true,
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0ATECJDK1Q",
+          "mode": "list",
+          "cachedResultName": "contact-update"
+        },
+        "text": "=Hello Team,\n\nWe have a new-lead from form submmission\n\nName: {{ $('add data in sheet').item.json['Full Name'] }}\nAddress: {{ $('Code in JavaScript').item.json.body.full_address }}\nEmail: {{ $('add data in sheet').item.json.Email }}\nPhone: {{ $('add data in sheet').item.json.Phone }}\nService: {{ $('add data in sheet').item.json.Service }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [
+        2144,
+        -192
+      ],
+      "id": "526b4706-cca9-4678-b8f3-afabae785456",
+      "name": "Send a message to the team",
+      "webhookId": "378e6ee7-be1c-4309-8926-b69424679b4e",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "9rHgtALYxwArv8Lh",
+          "name": "Slack account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.Tags }}",
+                    "rightValue": "new-lead",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "d3549c72-5902-4382-a9f0-79649d5ba682"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "new-lead"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "d0a84d31-b005-4708-a389-3eda544ee368",
+                    "leftValue": "={{ $json.Tags }}",
+                    "rightValue": "booked-consultation",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "booked-consultation"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "c4139c3f-504b-4dbf-bca5-2e134bb6c5ec",
+                    "leftValue": "={{ $json.Tags }}",
+                    "rightValue": "booked-service",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "=booked-sevice"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        1120,
+        -208
+      ],
+      "id": "6190ce60-ab97-4a03-a678-c36f151dfd5d",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "519289b5-fe09-4f6c-b772-ad1554127333",
+              "name": "prompt",
+              "value": "=You are a friendly sales assistant. Write a short, warm follow-up \nemail for a new lead using the details below.\n\nLead Name: {{ $('Code in JavaScript').item.json.body.first_name }}\nService Interested In: {{ $('Code in JavaScript').item.json.body.Service }}\nEmail: {{ $('Code in JavaScript').item.json.body.email }}\n\nCompany Name: {{ $('Code in JavaScript').item.json.body.location.name }}\n\nRules:\n- Keep it under 4 sentences\n- Sound human, not robotic\n- Do not use placeholder text or brackets\n- End with a warm closing\n- Add this link \"https://api.leadconnectorhq.com/widget/booking/7xRjTylbeuw8yTzRAABp\" and say something like this \"You can book consulation for free quotation and to answer all your questions\"\n\nThen return your response in this exact format:\n\nSUBJECT: [write the email subject here]\n\nBODY:\n[write the full email body here]",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1344,
+        -384
+      ],
+      "id": "e42ca917-6f69-4e14-b9c0-5f6aa436bef4",
+      "name": "new-lead prompt"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "18WrxegWN_7Ht5Srk7wKFPIDPF8s-jUF2edNBjZ7E6ko",
+          "mode": "list",
+          "cachedResultName": "Databes 2g Cleaning Service",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/18WrxegWN_7Ht5Srk7wKFPIDPF8s-jUF2edNBjZ7E6ko/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/18WrxegWN_7Ht5Srk7wKFPIDPF8s-jUF2edNBjZ7E6ko/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Contact ID",
+              "lookupValue": "={{ $json.body.contact_id }}"
+            }
+          ]
+        },
+        "combineFilters": "OR",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        448,
+        -192
+      ],
+      "id": "95ed45bb-edb7-4f36-88c1-deb0e98dfae2",
+      "name": "Get row(s) in sheet",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "WGqxK5llQ7uxMFPc",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "999a6d85-975c-4d76-8ead-1018f3bd86c6",
+              "leftValue": "={{ $json['Contact ID'] }}",
+              "rightValue": "={{ $json['Full Name'] }}",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        672,
+        -192
+      ],
+      "id": "55e15dda-3080-49aa-b78c-2f2eef2c6f58",
+      "name": "If",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "18WrxegWN_7Ht5Srk7wKFPIDPF8s-jUF2edNBjZ7E6ko",
+          "mode": "list",
+          "cachedResultName": "Databes 2g Cleaning Service",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/18WrxegWN_7Ht5Srk7wKFPIDPF8s-jUF2edNBjZ7E6ko/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/18WrxegWN_7Ht5Srk7wKFPIDPF8s-jUF2edNBjZ7E6ko/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Contact ID": "={{ $json['Contact ID'] }}",
+            "Tags": "={{ $('Code in JavaScript').item.json.body.tags }}"
+          },
+          "matchingColumns": [
+            "Contact ID"
+          ],
+          "schema": [
+            {
+              "id": "Contact ID",
+              "displayName": "Contact ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Full Name",
+              "displayName": "Full Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Service",
+              "displayName": "Service",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Tags",
+              "displayName": "Tags",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Contact Type",
+              "displayName": "Contact Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        896,
+        -288
+      ],
+      "id": "898e1796-16da-4f0a-b5f1-6ac3e1bcdb40",
+      "name": "Update data in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "WGqxK5llQ7uxMFPc",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "18WrxegWN_7Ht5Srk7wKFPIDPF8s-jUF2edNBjZ7E6ko",
+          "mode": "list",
+          "cachedResultName": "Databes 2g Cleaning Service",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/18WrxegWN_7Ht5Srk7wKFPIDPF8s-jUF2edNBjZ7E6ko/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/18WrxegWN_7Ht5Srk7wKFPIDPF8s-jUF2edNBjZ7E6ko/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Contact ID": "={{ $('Code in JavaScript').item.json.body.contact_id }}",
+            "Date": "={{ $('Code in JavaScript').item.json.body.date_created }}",
+            "Full Name": "={{ $('Code in JavaScript').item.json.body.full_name }}",
+            "Email": "={{ $('Code in JavaScript').item.json.body.email }}",
+            "Phone": "={{ $('Code in JavaScript').item.json.body.phone }}",
+            "Tags": "={{ $('Code in JavaScript').item.json.body.tags }}",
+            "Service": "={{ $('Code in JavaScript').item.json.body.Service }}",
+            "Contact Type": "={{ $('Code in JavaScript').item.json.body.contact_type }}"
+          },
+          "matchingColumns": [
+            "Contact ID"
+          ],
+          "schema": [
+            {
+              "id": "Contact ID",
+              "displayName": "Contact ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Full Name",
+              "displayName": "Full Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Service",
+              "displayName": "Service",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Tags",
+              "displayName": "Tags",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Contact Type",
+              "displayName": "Contact Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        896,
+        -96
+      ],
+      "id": "9d5a1725-978d-46bb-8478-18cfadb81591",
+      "name": "add data in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "WGqxK5llQ7uxMFPc",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "519289b5-fe09-4f6c-b772-ad1554127333",
+              "name": "prompt",
+              "value": "=You are a friendly sales assistant. Write a short, warm follow-up \nemail for a client that has booked an service.\n\nLead Name: {{ $('Code in JavaScript').item.json.body.first_name }}\nService Interested In: {{ $('Code in JavaScript').item.json.body.Service }}\nEmail: {{ $('Code in JavaScript').item.json.body.email }}\n\nCompany Name: {{ $('Code in JavaScript').item.json.body.location.name }}\n\nRules:\n- Keep it under 4 sentences\n- Sound human, not robotic\n- Do not use placeholder text or brackets\n- End with a warm closing\n\nThen return your response in this exact format:\n\nSUBJECT: [write the email subject here]\n\nBODY:\n[write the full email body here]",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1344,
+        0
+      ],
+      "id": "eef4b693-602f-441b-8608-de2580ce8639",
+      "name": "booked-service prompt"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "519289b5-fe09-4f6c-b772-ad1554127333",
+              "name": "prompt",
+              "value": "=You are a friendly sales assistant. Write a short, warm follow-up \nemail for a client that has booked an consultation.\n\nLead Name: {{ $('Code in JavaScript').item.json.body.first_name }}\nService Interested In: {{ $('Code in JavaScript').item.json.body.Service }}\nEmail: {{ $('Code in JavaScript').item.json.body.email }}\n\nCompany Name: {{ $('Code in JavaScript').item.json.body.location.name }}\n\nRules:\n- Keep it under 4 sentences\n- Sound human, not robotic\n- Do not use placeholder text or brackets\n- End with a warm closing\n\nThen return your response in this exact format:\n\nSUBJECT: [write the email subject here]\n\nBODY:\n[write the full email body here]",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1344,
+        -192
+      ],
+      "id": "ca69456b-17d9-4171-8ac4-f124fdbad453",
+      "name": "booked-consultation prompt"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Draft email Creation",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Draft email Creation",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HIghLevel Trigger (Form Submitted)": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Draft email Creation": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Send a message to the team",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "new-lead prompt",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "booked-consultation prompt",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "booked-service prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "new-lead prompt": {
+      "main": [
+        [
+          {
+            "node": "Draft email Creation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Update data in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "add data in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update data in sheet": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "add data in sheet": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "booked-service prompt": {
+      "main": [
+        [
+          {
+            "node": "Draft email Creation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "booked-consultation prompt": {
+      "main": [
+        [
+          {
+            "node": "Draft email Creation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "e9522793-1cc6-4ac7-ba94-0ad0beed86ef",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0ee61e31976bab960ad9c7520cd8a7607714b99359a41f3052f616685d6a73b2"
+  },
+  "id": "tKs6s0ccnUmTBQa7",
+  "tags": []
+}
